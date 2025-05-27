@@ -4,15 +4,15 @@ import styles from "./page.module.css";
 export default function Home() {
   return (
     <div className={styles.page}>
-      <main className={styles.main}>
         <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
+          className='logo'
+          src="/logo-csr.png"
+          alt="Happy Chicken Sandwich"
+          fill={true}
+          objectFit="contain"
           priority
         />
+      <main className={styles.main}>
         <ol>
           <li>
             Get started by editing <code>src/app/page.tsx</code>.
