@@ -1,0 +1,15 @@
+header {
+    font-size: 3vmin;
+    border: 0.5vmin solid lime;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+
+    nav button {
+        background: transparent;
+        border: 0.25vmin solid lime;
+        padding: 0.5em;
+        margin:  auto 1em;
+        cursor: pointer;
+    }
+}

@@ -1,3 +1,11 @@
+.reviews-container {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  border: 0.5vmin solid white;
+}
+
 .review-card {
   position: relative;
   width: 15vmax;
@@ -8,6 +16,7 @@
   border: unset;
   border-radius: 3vmin;
   z-index: 1;
+  margin: 5vmin;
 
   .text-container {
     color: black;

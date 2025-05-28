@@ -41,10 +41,19 @@ a {
   }
 }
 
-.page.home {
-  background-image: url('/public/logo-csr.png');
-  background-size: contain;
-  background-position: center;
-  background-repeat: no-repeat;
+.page {
+  display: flex;
+  flex-direction: column;
 
+  width: 100vw;
+  height: 100vh;
+
+  border: 0.5vmin solid red;
+
+  &.home {
+    background-image: url("/public/logo-csr.png");
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
 }

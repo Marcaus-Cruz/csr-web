@@ -1,18 +1,12 @@
-// import Image from "next/image";
-import ReviewsPage from "./reviews/page";
-{/* <Image
-  className="logo"
-  src="/logo-csr.png"
-  alt="Happy Chicken Sandwich"
-  fill={true}
-  objectFit="contain"
-  priority
-/> */}
+import PageWrapper from "./components/PageWrapper";
+import ReviewsPage from "./reviews/ReviewsPage";
 
 export default function Home() {
+  const currentPageName = "reviews";
+
   return (
-    <div className='page home'>
+    <PageWrapper currentPageName={currentPageName}>
       <ReviewsPage />
-    </div>
+    </PageWrapper>
   );
 }
