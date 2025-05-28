@@ -41,7 +41,10 @@ a {
   }
 }
 
-.logo {
-  opacity: 0.25;
-  z-index: -1;
+.page.home {
+  background-image: url('/public/logo-csr.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+
 }

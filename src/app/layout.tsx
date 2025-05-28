@@ -22,6 +22,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // TODO: Add a header with a logo and a menu
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
