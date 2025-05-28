@@ -1,5 +1,5 @@
 import ReviewCard from "./ReviewCard";
-import "./page.css";
+import "./reviews.css";
 
 async function getReviews() {
   const res = await fetch(

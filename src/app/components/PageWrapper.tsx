@@ -2,6 +2,7 @@
 
 import PageHeader from "./PageHeader";
 import { useState } from "react";
+import PageTitle from "./PageTitle";
 
 type PageKey = "home" | "reviews" | "create" | "edit" | "review";
 
@@ -16,7 +17,8 @@ export default function PageWrapper({
 
   return (
     <div className={`page ${currentPage}`}>
-      <PageHeader currentPage={currentPage} setCurrentPage={setCurrentPage} />
+      <PageHeader setCurrentPage={setCurrentPage} />
+      <PageTitle text={currentPage} />
       {children}
     </div>
   );
