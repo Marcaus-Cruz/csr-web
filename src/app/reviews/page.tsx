@@ -15,6 +15,8 @@ async function getReviews() {
 export default async function ReviewsPage() {
   const reviews = await getReviews();
 
+  console.log("[reviews][Page]", { reviews });
+
   return (
     <div className="reviews-container">
       {reviews.map((review) => (
