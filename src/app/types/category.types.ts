@@ -1,17 +1,36 @@
-export type CategoryRatingType = {
+export type RatingType = {
   id: string;
   text: string;
   value: number;
+  emoji?: string;
 };
 
-export type CategoryType = {
+export type CategoryType = RatingType & {
+  ratings: RatingType[];
+};
+
+export type DB_REVIEW = {
   id: string;
-  text: string;
-  ratings: CategoryRatingType[];
+  owner: string;
+  restName: string;
+  sandName: string;
+  intro: string;
+  categories: CategoryType[];
+  mainCategories: CategoryType[];
+  extraCategories: CategoryType[];
+  overallRating: number;
+  altRating: number;
+  remarks: string;
+  thumbnail: string;
+  collectionId: string;
+  collectionName: string;
+  created: string;
+  updated: string;
+  hashtags?: string[];
 };
 
-export const BASE_CATEGORIES = Object.freeze({
-  chicken: {
+export const BASE_CATEGORIES = Object.freeze([
+  {
     id: "chicken",
     text: "CHICKEN",
     ratings: [
@@ -20,7 +39,7 @@ export const BASE_CATEGORIES = Object.freeze({
       { id: "chicken-taste", text: "Seasoning/Taste", value: 0 },
     ],
   },
-  sauce: {
+  {
     id: "sauce",
     text: "SAUCE",
     ratings: [
@@ -29,7 +48,7 @@ export const BASE_CATEGORIES = Object.freeze({
       { id: "sauce-taste", text: "Taste", value: 0 },
     ],
   },
-  bun: {
+  {
     id: "bun",
     text: "BUN",
     ratings: [
@@ -37,4 +56,4 @@ export const BASE_CATEGORIES = Object.freeze({
       { id: "bun-taste", text: "Taste", value: 0 },
     ],
   },
-});
+]) as CategoryType[];
