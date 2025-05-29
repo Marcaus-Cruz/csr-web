@@ -1,4 +1,5 @@
 export type RatingType = {
+  category: string;
   id: string;
   text: string;
   value: number;
@@ -34,26 +35,41 @@ export const BASE_CATEGORIES = Object.freeze([
     id: "chicken",
     text: "CHICKEN",
     ratings: [
-      { id: "chicken-crunch", text: "Crunch", value: 0 },
-      { id: "chicken-juiciness", text: "Juiciness", value: 0 },
-      { id: "chicken-taste", text: "Seasoning/Taste", value: 0 },
+      { category: "chicken", id: "chicken-crunch", text: "Crunch", value: 0 },
+      {
+        category: "chicken",
+        id: "chicken-juiciness",
+        text: "Juiciness",
+        value: 0,
+      },
+      {
+        category: "chicken",
+        id: "chicken-taste",
+        text: "Seasoning/Taste",
+        value: 0,
+      },
     ],
   },
   {
     id: "sauce",
     text: "SAUCE",
     ratings: [
-      { id: "sauce-spiciness", text: "Spicy Spice", value: 0 },
-      { id: "sauce-amount", text: "Amount", value: 0 },
-      { id: "sauce-taste", text: "Taste", value: 0 },
+      {
+        category: "sauce",
+        id: "sauce-spiciness",
+        text: "Spicy Spice",
+        value: 0,
+      },
+      { category: "sauce", id: "sauce-amount", text: "Amount", value: 0 },
+      { category: "sauce", id: "sauce-taste", text: "Taste", value: 0 },
     ],
   },
   {
     id: "bun",
     text: "BUN",
     ratings: [
-      { id: "bun-texture", text: "Texture", value: 0 },
-      { id: "bun-taste", text: "Taste", value: 0 },
+      { category: "bun", id: "bun-texture", text: "Texture", value: 0 },
+      { category: "bun", id: "bun-taste", text: "Taste", value: 0 },
     ],
   },
 ]) as CategoryType[];
