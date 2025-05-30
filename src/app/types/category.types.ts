@@ -57,7 +57,7 @@ export const BASE_CATEGORIES = Object.freeze([
       {
         category: "sauce",
         id: "sauce-spiciness",
-        text: "Spicy Spice",
+        text: "Spice",
         value: 0,
       },
       { category: "sauce", id: "sauce-amount", text: "Amount", value: 0 },

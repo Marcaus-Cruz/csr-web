@@ -3,10 +3,13 @@
 import { useState } from "react";
 import { BASE_CATEGORIES } from "@/app/types/category.types";
 import type { RatingType, CategoryType } from "@/app/types/category.types";
-import { CHICKEN_EMOJIS, CONSTANT_HASHTAGS } from "./page";
+import { CHICKEN_EMOJIS, CONSTANT_HASHTAGS } from "../reviews/[id]/page";
 import { useRouter } from "next/navigation";
+import "./createPage.css";
 
 export default function CreateNewReview() {
+  // TODO: if not signed in, redirect to login page
+
   const [restName, setRestName] = useState("");
   const [sandName, setSandName] = useState("");
   const [intro, setIntro] = useState("");
@@ -57,9 +60,9 @@ export default function CreateNewReview() {
 
   return (
     <form onSubmit={create}>
-      <div>
+      <div className="container descriptors">
         <label htmlFor="restName" className="form-label">
-          Resturaunt:
+          Resturaunt ⇒
         </label>
         <input
           type="text"
@@ -71,7 +74,7 @@ export default function CreateNewReview() {
           onChange={(e) => setRestName(e.target.value)}
         />
         <label htmlFor="sandName" className="form-label">
-          Sandwich:
+          Sandwich ⇒
         </label>
         <input
           type="text"
@@ -83,12 +86,11 @@ export default function CreateNewReview() {
           onChange={(e) => setSandName(e.target.value)}
         />
       </div>
-      <div>
+      <div className="container intro">
         <label htmlFor="intro" className="form-label">
-          Intro:
+          Intro ⇒
         </label>
         <textarea
-          // type="text"
           name="intro"
           className="form-input text long"
           minLength={1}
@@ -96,9 +98,9 @@ export default function CreateNewReview() {
           onChange={(e) => setIntro(e.target.value)}
         />
       </div>
-      <div>
+      <div className="container categories main">
         {mainCategories.map((category) => (
-          <div key={`category-${category.id}`}>
+          <div key={`category-${category.id}`} className="container category">
             <span className="form-label">{category.text}:</span>
             {category.ratings.map((rating) => (
               <RatingItem key={`${rating.id}`} {...rating} />
@@ -106,12 +108,11 @@ export default function CreateNewReview() {
           </div>
         ))}
       </div>
-      <div>
+      <div className="container remarks">
         <label htmlFor="remarks" className="form-label">
-          Remarks:
+          Remarks ⇒
         </label>
         <textarea
-          // type="text"
           name="remarks"
           className="form-input text long"
           minLength={1}
@@ -119,15 +120,16 @@ export default function CreateNewReview() {
           onChange={(e) => setRemarks(e.target.value)}
         />
       </div>
-      <div></div>
 
       <HashtagSection
         existingHashTags={existingHashTags}
         setExistingHashTags={setExistingHashTags}
       />
-      <button type="submit" className="btn btn-submit">
-        Submit Review
-      </button>
+      <div className="container btn-container">
+        <button type="submit" className="btn btn-submit">
+          Submit Review
+        </button>
+      </div>
     </form>
   );
 }
@@ -150,6 +152,7 @@ function HashtagSection({
     }
     setExistingHashTags([...existingHashTags, newHashtag]);
     setIsAddingHashtag(false);
+    setNewHashtag("");
   }
 
   function removeHashtag(hashtag: string) {
@@ -157,9 +160,9 @@ function HashtagSection({
   }
 
   return (
-    <div className="hashtags">
+    <div className="container hashtags">
       {!isAddingHashtag && (
-        <button onClick={() => setIsAddingHashtag(true)}>+</button>
+        <button className="btn" onClick={() => setIsAddingHashtag(true)}>+</button>
       )}
       {isAddingHashtag && (
         <div className="hashtag new-hashtag">
@@ -169,14 +172,14 @@ function HashtagSection({
             value={newHashtag}
             onChange={(e) => setNewHashtag(e.target.value)}
           />
-          <button onClick={() => saveHashtag()}>Done</button>
+          <button className="btn" onClick={() => saveHashtag()}>Done</button>
         </div>
       )}
       {existingHashTags.map((hashtag) => {
         return (
           <div key={hashtag} className="hashtag">
             #<input type="text" value={hashtag} disabled />
-            <button onClick={() => removeHashtag(hashtag)}>delete</button>
+            <button className="btn" onClick={() => removeHashtag(hashtag)}>delete</button>
           </div>
         );
       })}
@@ -192,6 +195,7 @@ function HashtagSection({
 
 function RatingItem(rating: RatingType) {
   const [ratingName, setRatingName] = useState(rating.text);
+  const isMainCategory = rating.text.length > 0;
   const [ratingValue, setRatingValue] = useState(rating.value);
   const [emoji, setEmoji] = useState(rating.emoji);
 
@@ -204,17 +208,23 @@ function RatingItem(rating: RatingType) {
   return (
     <div className="rating-item">
       <div className="rating-item-child name">
-        <span>Name:</span>
-        <input
-          type="text"
-          value={ratingName}
-          onChange={(e) => setRatingName(e.target.value)}
-          placeholder="What are you rating for?"
-        />
+        {!isMainCategory && (
+          <div className="rating-item-child new-rating">
+            <span>[rating][name] ⇒ </span>
+            <input
+              type="text"
+              value={ratingName}
+              onChange={(e) => setRatingName(e.target.value)}
+              placeholder="What are you rating for?"
+              disabled={rating.text.length > 0}
+            />
+          </div>
+        )}
+        {isMainCategory && <span>{ratingName}</span>}
       </div>
       <div className="rating-item-child value">
-        <span className="flex100perc">Value:</span>
         <button
+        type="button"
           className="btn btn-increment"
           onClick={() => incrementRating(-0.5)}
         >
@@ -229,19 +239,20 @@ function RatingItem(rating: RatingType) {
           max={10}
         />
         <button
+        type="button"
           className="btn btn-increment"
           onClick={() => incrementRating(0.5)}
         >
           +
         </button>
-        <input
-          className="emoji flex100perc"
-          type="text"
-          value={emoji}
-          onChange={(e) => setEmoji(e.target.value)}
-          placeholder={CHICKEN_EMOJIS.full}
-        />
       </div>
+      <input
+        className="rating-item-child emoji"
+        type="text"
+        value={emoji}
+        onChange={(e) => setEmoji(e.target.value)}
+        placeholder={CHICKEN_EMOJIS.full}
+      />
     </div>
   );
 }

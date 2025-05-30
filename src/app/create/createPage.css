@@ -1,0 +1,65 @@
+form {
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+
+  font-size: 2.5vmin;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  background: gray;
+  padding: 1em 0.5em;
+  border-radius: 1em;
+  border: 0.1em solid white;
+  margin: 0.25em 0em;
+
+  .form-label {
+    text-transform: uppercase;
+  }
+
+  .form-input {
+    &.text {
+      color: black;
+      background-color: white;
+      border: 0.1em solid black;
+      border-radius: 1em;
+      padding: 0.25em;
+      margin: 0.25em 0em 1em 0em;
+
+      &.long {
+        min-height: 7.5em;
+      }
+    }
+  }
+}
+
+.container.descriptors {
+  text-align: center;
+
+  input {
+    text-align: center;
+  }
+}
+
+.rating-item {
+  display: flex;
+  flex-direction: column;
+  /* flex-wrap: wrap; */
+  text-align: center;
+
+  .rating-item-child {
+    text-align: center;
+    &.value {
+      display: flex;
+      input {
+        flex: 1;
+        text-align: center;
+      }
+      .btn {
+        flex: 0.25;
+      }
+    }
+  }
+}
