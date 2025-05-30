@@ -3,6 +3,7 @@ import type {
   CategoryType,
   DB_REVIEW,
 } from "@/app/types/category.types";
+import Link from "next/link";
 
 async function getReview(id: string) {
   console.log("[reviews][id][page][getReview]", { id });
@@ -44,6 +45,7 @@ export default async function ReviewPage({
         <br />
         {Hashtags(hashtags)}
       </div>
+      <Link className="btn edit" href="">Edit Review</Link>
     </div>
   );
 }
@@ -65,7 +67,7 @@ export const CONSTANT_HASHTAGS = Object.freeze([
   "searchforthebestchickiesandyinamerica",
 ]);
 
-const CHICKEN_EMOJIS = Object.freeze({
+export const CHICKEN_EMOJIS = Object.freeze({
   full: "\u{1F414}",
   half: "\u{1F425}",
 });
