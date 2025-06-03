@@ -101,7 +101,7 @@ export default function CreateNewReview() {
       <div className="container categories main">
         {mainCategories.map((category) => (
           <div key={`category-${category.id}`} className="container category">
-            <span className="form-label">{category.text}:</span>
+            <span className="form-label">{category.text} ⇒ </span>
             {category.ratings.map((rating) => (
               <RatingItem key={`${rating.id}`} {...rating} />
             ))}
@@ -162,7 +162,9 @@ function HashtagSection({
   return (
     <div className="container hashtags">
       {!isAddingHashtag && (
-        <button className="btn" onClick={() => setIsAddingHashtag(true)}>+</button>
+        <button className="btn" onClick={() => setIsAddingHashtag(true)}>
+          +
+        </button>
       )}
       {isAddingHashtag && (
         <div className="hashtag new-hashtag">
@@ -172,14 +174,18 @@ function HashtagSection({
             value={newHashtag}
             onChange={(e) => setNewHashtag(e.target.value)}
           />
-          <button className="btn" onClick={() => saveHashtag()}>Done</button>
+          <button className="btn" onClick={() => saveHashtag()}>
+            Done
+          </button>
         </div>
       )}
       {existingHashTags.map((hashtag) => {
         return (
           <div key={hashtag} className="hashtag">
             #<input type="text" value={hashtag} disabled />
-            <button className="btn" onClick={() => removeHashtag(hashtag)}>delete</button>
+            <button className="btn" onClick={() => removeHashtag(hashtag)}>
+              delete
+            </button>
           </div>
         );
       })}
@@ -224,13 +230,14 @@ function RatingItem(rating: RatingType) {
       </div>
       <div className="rating-item-child value">
         <button
-        type="button"
+          type="button"
           className="btn btn-increment"
           onClick={() => incrementRating(-0.5)}
         >
           -
         </button>
         <input
+          id={`rating-${rating.id}`}
           type="number"
           value={ratingValue}
           onChange={(e) => setRatingValue(parseFloat(e.target.value))}
@@ -239,7 +246,7 @@ function RatingItem(rating: RatingType) {
           max={10}
         />
         <button
-        type="button"
+          type="button"
           className="btn btn-increment"
           onClick={() => incrementRating(0.5)}
         >
@@ -252,6 +259,7 @@ function RatingItem(rating: RatingType) {
         value={emoji}
         onChange={(e) => setEmoji(e.target.value)}
         placeholder={CHICKEN_EMOJIS.full}
+        maxLength={1}
       />
     </div>
   );
