@@ -17,6 +17,7 @@ export default function CreateNewReview() {
   const [extraCategories, setExtraCategories] = useState([]);
   const [remarks, setRemarks] = useState("");
   const [existingHashTags, setExistingHashTags] = useState<string[]>([]); // ...Constant Hashtags
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
 
   const router = useRouter();
 
@@ -121,6 +122,15 @@ export default function CreateNewReview() {
             ))}
           </div>
         ))}
+        {!isAddingCategory && (
+          <button
+            type="button"
+            className="btn btn-new"
+            onClick={() => setIsAddingCategory(true)}
+          >
+            + Category
+          </button>
+        )}
       </div>
       <div className="container remarks">
         <label htmlFor="remarks" className="form-label">
@@ -144,6 +154,19 @@ export default function CreateNewReview() {
           Submit Review
         </button>
       </div>
+
+      {isAddingCategory && (
+        <div className="container modal">
+          Add Category
+          <button
+            type="button"
+            className="btn btn-done"
+            onClick={() => setIsAddingCategory(false)}
+          >
+            Done
+          </button>
+        </div>
+      )}
     </form>
   );
 }
