@@ -20,7 +20,7 @@ export default function CreateNewReview() {
 
   const router = useRouter();
 
-  async function create() {
+  async function create(e) {
     console.log(`[CreateReview][onSubmit]`, {
       restName,
       sandName,
@@ -29,6 +29,20 @@ export default function CreateNewReview() {
       extraCategories,
       remarks,
       existingHashTags,
+    });
+
+    [restName, sandName, intro, remarks].forEach((text) => {
+      if (!text) {
+        e.preventDefault();
+        throw new Error(`[CreateReview][onSubmit] - text is empty`);
+      }
+    });
+
+    existingHashTags.forEach((tag) => {
+      if (!tag) {
+        e.preventDefault();
+        throw new Error(`[CreateReview][onSubmit] - tag is empty`);
+      }
     });
 
     await fetch("http://127.0.0.1:8090/api/collections/reviews/records", {
