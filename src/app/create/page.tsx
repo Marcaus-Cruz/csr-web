@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { use, useState } from "react";
 import { BASE_CATEGORIES } from "@/app/types/category.types";
 import type { RatingType, CategoryType } from "@/app/types/category.types";
 import { CHICKEN_EMOJIS, CONSTANT_HASHTAGS } from "../reviews/[id]/page";
@@ -18,6 +18,8 @@ export default function CreateNewReview() {
   const [remarks, setRemarks] = useState("");
   const [existingHashTags, setExistingHashTags] = useState<string[]>([]); // ...Constant Hashtags
   const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [isInTheMiddleOfSomething, setIsInTheMiddleOfSomething] =
+    useState(false);
 
   const router = useRouter();
 
@@ -73,9 +75,19 @@ export default function CreateNewReview() {
     router.refresh();
   }
 
+  function doAddCategory() {
+    setIsInTheMiddleOfSomething(true);
+    setIsAddingCategory(true);
+  }
+
   return (
-    <form onSubmit={create}>
-      <div className="container descriptors">
+    <form
+      onSubmit={create}
+      className={`create-review-form${
+        isInTheMiddleOfSomething ? " disabled" : ""
+      }`}
+    >
+      <Container className="descriptors">
         <label htmlFor="restName" className="form-label">
           Resturaunt ⇒
         </label>
@@ -100,8 +112,8 @@ export default function CreateNewReview() {
           value={sandName}
           onChange={(e) => setSandName(e.target.value)}
         />
-      </div>
-      <div className="container intro">
+      </Container>
+      <Container className="intro">
         <label htmlFor="intro" className="form-label">
           Intro ⇒
         </label>
@@ -112,27 +124,34 @@ export default function CreateNewReview() {
           value={intro}
           onChange={(e) => setIntro(e.target.value)}
         />
-      </div>
-      <div className="container categories main">
+      </Container>
+      <Container className="categories main">
         {mainCategories.map((category) => (
-          <div key={`category-${category.id}`} className="container category">
+          <Container key={`category-${category.id}`} className="category">
             <span className="form-label">{category.text} ⇒ </span>
             {category.ratings.map((rating) => (
               <RatingItem key={`${rating.id}`} {...rating} />
             ))}
-          </div>
+          </Container>
         ))}
-        {!isAddingCategory && (
-          <button
-            type="button"
-            className="btn btn-new"
-            onClick={() => setIsAddingCategory(true)}
-          >
-            + Category
-          </button>
-        )}
-      </div>
-      <div className="container remarks">
+        <AddButton
+          isOnScreen={isAddingCategory}
+          startAddFunction={doAddCategory}
+          elementToDisplay={
+            <Container className="modal">
+              Add Category
+              <button
+                type="button"
+                className="btn btn-done"
+                onClick={() => setIsAddingCategory(false)}
+              >
+                Done
+              </button>
+            </Container>
+          }
+        />
+      </Container>
+      <Container className="remarks">
         <label htmlFor="remarks" className="form-label">
           Remarks ⇒
         </label>
@@ -143,32 +162,40 @@ export default function CreateNewReview() {
           value={remarks}
           onChange={(e) => setRemarks(e.target.value)}
         />
-      </div>
+      </Container>
 
       <HashtagSection
         existingHashTags={existingHashTags}
         setExistingHashTags={setExistingHashTags}
       />
-      <div className="container btn-container">
+      <Container className="btn-container">
         <button type="submit" className="btn btn-submit">
           Submit Review
         </button>
-      </div>
-
-      {isAddingCategory && (
-        <div className="container modal">
-          Add Category
-          <button
-            type="button"
-            className="btn btn-done"
-            onClick={() => setIsAddingCategory(false)}
-          >
-            Done
-          </button>
-        </div>
-      )}
+      </Container>
     </form>
   );
+}
+
+// TODO: Create into component
+export function Container({ children, className = "" }) {
+  return <div className={`container ${className}`}>{children}</div>;
+}
+
+function AddButton({ isOnScreen, startAddFunction, elementToDisplay }) {
+  if (!isOnScreen) {
+    return (
+      <button
+        type="button"
+        className="btn btn-add"
+        onClick={() => startAddFunction()}
+      >
+        +
+      </button>
+    );
+  }
+
+  return elementToDisplay;
 }
 
 type HashtagSectionProps = Readonly<{
@@ -198,30 +225,29 @@ function HashtagSection({
 
   return (
     <div className="container hashtags">
-      {!isAddingHashtag && (
-        <button className="btn" onClick={() => setIsAddingHashtag(true)}>
-          +
-        </button>
-      )}
-      {isAddingHashtag && (
-        <div className="hashtag new-hashtag">
-          #
-          <input
-            type="text"
-            value={newHashtag}
-            onChange={(e) => setNewHashtag(e.target.value)}
-          />
-          <button className="btn" onClick={() => saveHashtag()}>
-            Done
-          </button>
-        </div>
-      )}
+      <AddButton
+        isOnScreen={isAddingHashtag}
+        startAddFunction={() => setIsAddingHashtag(true)}
+        elementToDisplay={
+          <div className="hashtag new-hashtag">
+            #
+            <input
+              type="text"
+              value={newHashtag}
+              onChange={(e) => setNewHashtag(e.target.value)}
+            />
+            <button className="btn" onClick={() => saveHashtag()}>
+              Done
+            </button>
+          </div>
+        }
+      />
       {existingHashTags.map((hashtag) => {
         return (
           <div key={hashtag} className="hashtag">
             #<input type="text" value={hashtag} disabled />
             <button className="btn" onClick={() => removeHashtag(hashtag)}>
-              delete
+              -
             </button>
           </div>
         );
