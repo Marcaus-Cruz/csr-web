@@ -1,10 +1,14 @@
 "use client";
 
-import { use, useState } from "react";
-import { BASE_CATEGORIES } from "@/app/types/category.types";
-import type { RatingType, CategoryType } from "@/app/types/category.types";
-import { CHICKEN_EMOJIS, CONSTANT_HASHTAGS } from "../reviews/[id]/page";
+import type { CategoryType, RatingType } from "@/app/types/category.types";
+import {
+  BASE_CATEGORIES,
+  BASE_CATEGORIES_IDS,
+} from "@/app/types/category.types";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { v4 as uuid } from "uuid";
+import { CHICKEN_EMOJIS, CONSTANT_HASHTAGS } from "../reviews/[id]/page";
 import "./createPage.css";
 
 export default function CreateNewReview() {
@@ -13,13 +17,12 @@ export default function CreateNewReview() {
   const [restName, setRestName] = useState("");
   const [sandName, setSandName] = useState("");
   const [intro, setIntro] = useState("");
-  const [mainCategories, setMainCategories] = useState(BASE_CATEGORIES);
-  const [extraCategories, setExtraCategories] = useState([]);
+  const [categories, setCategories] = useState<CategoryType[]>(BASE_CATEGORIES);
+  const [newCategory, setNewCategory] = useState<CategoryType>(
+    getNewCategoryItem()
+  );
   const [remarks, setRemarks] = useState("");
   const [existingHashTags, setExistingHashTags] = useState<string[]>([]); // ...Constant Hashtags
-  const [isAddingCategory, setIsAddingCategory] = useState(false);
-  const [isInTheMiddleOfSomething, setIsInTheMiddleOfSomething] =
-    useState(false);
 
   const router = useRouter();
 
@@ -28,25 +31,31 @@ export default function CreateNewReview() {
       restName,
       sandName,
       intro,
-      mainCategories,
-      extraCategories,
+      categories,
       remarks,
       existingHashTags,
     });
 
+    e.preventDefault();
+
     [restName, sandName, intro, remarks].forEach((text) => {
       if (!text) {
-        e.preventDefault();
         throw new Error(`[CreateReview][onSubmit] - text is empty`);
       }
     });
 
     existingHashTags.forEach((tag) => {
       if (!tag) {
-        e.preventDefault();
         throw new Error(`[CreateReview][onSubmit] - tag is empty`);
       }
     });
+
+    const mainCategories = categories.filter((category) =>
+      BASE_CATEGORIES_IDS.includes(category.id)
+    );
+    const extraCategories = categories.filter(
+      (category) => !BASE_CATEGORIES_IDS.includes(category.id)
+    );
 
     await fetch("http://127.0.0.1:8090/api/collections/reviews/records", {
       method: "POST",
@@ -57,6 +66,7 @@ export default function CreateNewReview() {
         restName,
         sandName,
         intro,
+        categories,
         mainCategories,
         extraCategories,
         remarks,
@@ -67,26 +77,15 @@ export default function CreateNewReview() {
     setRestName("");
     setSandName("");
     setIntro("");
-    setMainCategories(BASE_CATEGORIES);
-    setExtraCategories([]);
+    setCategories(BASE_CATEGORIES);
     setRemarks("");
     setExistingHashTags([]);
 
     router.refresh();
   }
 
-  function doAddCategory() {
-    setIsInTheMiddleOfSomething(true);
-    setIsAddingCategory(true);
-  }
-
   return (
-    <form
-      onSubmit={create}
-      className={`create-review-form${
-        isInTheMiddleOfSomething ? " disabled" : ""
-      }`}
-    >
+    <form onSubmit={create} className={`create-review-form`}>
       <Container className="descriptors">
         <label htmlFor="restName" className="form-label">
           Resturaunt ⇒
@@ -126,30 +125,154 @@ export default function CreateNewReview() {
         />
       </Container>
       <Container className="categories main">
-        {mainCategories.map((category) => (
-          <Container key={`category-${category.id}`} className="category">
-            <span className="form-label">{category.text} ⇒ </span>
-            {category.ratings.map((rating) => (
-              <RatingItem key={`${rating.id}`} {...rating} />
-            ))}
-          </Container>
-        ))}
-        <AddButton
-          isOnScreen={isAddingCategory}
-          startAddFunction={doAddCategory}
-          elementToDisplay={
-            <Container className="modal">
-              Add Category
-              <button
-                type="button"
-                className="btn btn-done"
-                onClick={() => setIsAddingCategory(false)}
-              >
-                Done
-              </button>
+        {categories.map((category) => {
+          return (
+            <Container key={`${category.id}`} className="category">
+              <input
+                type="text"
+                className="form-label typewriter"
+                value={category.text}
+                placeholder="New Category"
+                onChange={(e) => {
+                  const newCategories = [...categories];
+                  const index = newCategories.findIndex(
+                    (c) => c.id === category.id
+                  );
+                  newCategories[index].text = e.target.value;
+                  setCategories(newCategories);
+                }}
+              />
+              {category.ratings?.map((rating) => (
+                <div key={rating.id} className={"rating-item"}>
+                  <div className="rating-item-child name">
+                    <input
+                      type="text"
+                      className="form-label typewriter"
+                      value={rating.text}
+                      placeholder="New Rating"
+                      onChange={(e) => {
+                        const newCategories = [...categories];
+                        const catIndex = newCategories.findIndex(
+                          (c) => c.id === category.id
+                        );
+                        const ratingIndex = newCategories[
+                          catIndex
+                        ].ratings.findIndex((r) => r.id === rating.id);
+                        newCategories[catIndex].ratings[ratingIndex].text =
+                          e.target.value;
+                        setCategories(newCategories);
+                      }}
+                    />
+                  </div>
+                  <div className="rating-item-child value">
+                    <button
+                      type="button"
+                      className="btn btn-increment"
+                      onClick={() => {
+                        const newCategories = [...categories];
+                        const catIndex = newCategories.findIndex(
+                          (c) => c.id === category.id
+                        );
+                        const ratingIndex = newCategories[
+                          catIndex
+                        ].ratings.findIndex((r) => r.id === rating.id);
+                        newCategories[catIndex].ratings[ratingIndex].value +=
+                          -0.5;
+                        setCategories(newCategories);
+                      }}
+                    >
+                      -
+                    </button>
+                    <input
+                      id={`rating-${rating.id}`}
+                      type="number"
+                      value={rating.value}
+                      onChange={(e) => {
+                        const newCategories = [...categories];
+                        const catIndex = newCategories.findIndex(
+                          (c) => c.id === category.id
+                        );
+                        const ratingIndex = newCategories[
+                          catIndex
+                        ].ratings.findIndex((r) => r.id === rating.id);
+                        newCategories[catIndex].ratings[ratingIndex].value =
+                          parseFloat(e.target.value);
+                        setCategories(newCategories);
+                      }}
+                      placeholder="0-10"
+                      min={0}
+                      max={10}
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-increment"
+                      onClick={() => {
+                        const newCategories = [...categories];
+                        const catIndex = newCategories.findIndex(
+                          (c) => c.id === category.id
+                        );
+                        const ratingIndex = newCategories[
+                          catIndex
+                        ].ratings.findIndex((r) => r.id === rating.id);
+                        newCategories[catIndex].ratings[
+                          ratingIndex
+                        ].value += 0.5;
+                        setCategories(newCategories);
+                      }}
+                    >
+                      +
+                    </button>
+                  </div>
+                  <input
+                    className="rating-item-child emoji"
+                    type="text"
+                    value={rating.emoji}
+                    onChange={(e) => {
+                      const newCategories = [...categories];
+                      const catIndex = newCategories.findIndex(
+                        (c) => c.id === category.id
+                      );
+                      const ratingIndex = newCategories[
+                        catIndex
+                      ].ratings.findIndex((r) => r.id === rating.id);
+                      newCategories[catIndex].ratings[ratingIndex].emoji =
+                        e.target.value;
+                      setCategories(newCategories);
+                    }}
+                    placeholder={CHICKEN_EMOJIS.full}
+                    maxLength={1}
+                  />
+                </div>
+              ))}
+              {category.text && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newCategories = [...categories];
+                    const catIndex = newCategories.findIndex(
+                      (c) => c.id === category.id
+                    );
+
+                    newCategories[catIndex].ratings.push(getNewRatingItem());
+                    setCategories(newCategories);
+                  }}
+                >
+                  Add Rating
+                </button>
+              )}
             </Container>
-          }
-        />
+          );
+        })}
+        <button
+          type="button"
+          className="btn btn-add"
+          onClick={() => {
+            setNewCategory(getNewCategoryItem());
+            setCategories([...categories, newCategory]);
+          }}
+        >
+          +
+        </button>
       </Container>
       <Container className="remarks">
         <label htmlFor="remarks" className="form-label">
@@ -175,6 +298,25 @@ export default function CreateNewReview() {
       </Container>
     </form>
   );
+}
+
+function getNewRatingItem(): RatingType {
+  return {
+    id: uuid(),
+    text: "",
+    value: 5,
+    category: "",
+    emoji: "",
+  };
+}
+
+function getNewCategoryItem(): CategoryType {
+  return {
+    id: uuid(),
+    text: "",
+    ratings: [],
+    value: 0,
+  };
 }
 
 // TODO: Create into component
@@ -258,72 +400,6 @@ function HashtagSection({
       <div className="hashtag">
         #<input type="text" value={CONSTANT_HASHTAGS[1]} disabled />
       </div>
-    </div>
-  );
-}
-
-function RatingItem(rating: RatingType) {
-  const [ratingName, setRatingName] = useState(rating.text);
-  const isMainCategory = rating.text.length > 0;
-  const [ratingValue, setRatingValue] = useState(rating.value);
-  const [emoji, setEmoji] = useState(rating.emoji);
-
-  function incrementRating(value: number) {
-    if (ratingValue + value < 0) setRatingValue(0);
-    if (ratingValue + value > 10) setRatingValue(10);
-    else setRatingValue(ratingValue + value);
-  }
-
-  return (
-    <div className="rating-item">
-      <div className="rating-item-child name">
-        {!isMainCategory && (
-          <div className="rating-item-child new-rating">
-            <span>[rating][name] ⇒ </span>
-            <input
-              type="text"
-              value={ratingName}
-              onChange={(e) => setRatingName(e.target.value)}
-              placeholder="What are you rating for?"
-              disabled={rating.text.length > 0}
-            />
-          </div>
-        )}
-        {isMainCategory && <span>{ratingName}</span>}
-      </div>
-      <div className="rating-item-child value">
-        <button
-          type="button"
-          className="btn btn-increment"
-          onClick={() => incrementRating(-0.5)}
-        >
-          -
-        </button>
-        <input
-          id={`rating-${rating.id}`}
-          type="number"
-          value={ratingValue}
-          onChange={(e) => setRatingValue(parseFloat(e.target.value))}
-          placeholder="0-10"
-          min={0}
-          max={10}
-        />
-        <button
-          type="button"
-          className="btn btn-increment"
-          onClick={() => incrementRating(0.5)}
-        >
-          +
-        </button>
-      </div>
-      <input
-        className="rating-item-child emoji"
-        type="text"
-        value={emoji}
-        onChange={(e) => setEmoji(e.target.value)}
-        placeholder={CHICKEN_EMOJIS.full}
-        maxLength={1}
-      />
     </div>
   );
 }

@@ -1,8 +1,8 @@
 export type RatingType = {
-  category: string;
   id: string;
   text: string;
   value: number;
+  category?: string;
   emoji?: string;
 };
 
@@ -29,6 +29,18 @@ export type DB_REVIEW = {
   updated: string;
   hashtags?: string[];
 };
+
+export const BASE_CATEGORIES_IDS = Object.freeze(["chicken", "sauce", "bun"]);
+export const BASE_CATEGORIES_RATINGS_IDS = Object.freeze([
+  "chicken-crunch",
+  "chicken-juiciness",
+  "chicken-taste",
+  "sauce-spiciness",
+  "sauce-amount",
+  "sauce-taste",
+  "bun-texture",
+  "bun-taste",
+]);
 
 export const BASE_CATEGORIES = Object.freeze([
   {
