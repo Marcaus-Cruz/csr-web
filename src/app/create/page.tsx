@@ -10,6 +10,7 @@ import { useState } from "react";
 import { v4 as uuid } from "uuid";
 import { CHICKEN_EMOJIS, CONSTANT_HASHTAGS } from "../reviews/[id]/page";
 import "./createPage.css";
+import { ValueOf } from "next/dist/shared/lib/constants";
 
 export default function CreateNewReview() {
   // TODO: if not signed in, redirect to login page
@@ -125,144 +126,13 @@ export default function CreateNewReview() {
         />
       </Container>
       <Container className="categories main">
-        {categories.map((category) => {
-          return (
-            <Container key={`${category.id}`} className="category">
-              <input
-                type="text"
-                className="form-label typewriter"
-                value={category.text}
-                placeholder="New Category"
-                onChange={(e) => {
-                  const newCategories = [...categories];
-                  const index = newCategories.findIndex(
-                    (c) => c.id === category.id
-                  );
-                  newCategories[index].text = e.target.value;
-                  setCategories(newCategories);
-                }}
-              />
-              {category.ratings?.map((rating) => (
-                <div key={rating.id} className={"rating-item"}>
-                  <div className="rating-item-child name">
-                    <input
-                      type="text"
-                      className="form-label typewriter"
-                      value={rating.text}
-                      placeholder="New Rating"
-                      onChange={(e) => {
-                        const newCategories = [...categories];
-                        const catIndex = newCategories.findIndex(
-                          (c) => c.id === category.id
-                        );
-                        const ratingIndex = newCategories[
-                          catIndex
-                        ].ratings.findIndex((r) => r.id === rating.id);
-                        newCategories[catIndex].ratings[ratingIndex].text =
-                          e.target.value;
-                        setCategories(newCategories);
-                      }}
-                    />
-                  </div>
-                  <div className="rating-item-child value">
-                    <button
-                      type="button"
-                      className="btn btn-increment"
-                      onClick={() => {
-                        const newCategories = [...categories];
-                        const catIndex = newCategories.findIndex(
-                          (c) => c.id === category.id
-                        );
-                        const ratingIndex = newCategories[
-                          catIndex
-                        ].ratings.findIndex((r) => r.id === rating.id);
-                        newCategories[catIndex].ratings[ratingIndex].value +=
-                          -0.5;
-                        setCategories(newCategories);
-                      }}
-                    >
-                      -
-                    </button>
-                    <input
-                      id={`rating-${rating.id}`}
-                      type="number"
-                      value={rating.value}
-                      onChange={(e) => {
-                        const newCategories = [...categories];
-                        const catIndex = newCategories.findIndex(
-                          (c) => c.id === category.id
-                        );
-                        const ratingIndex = newCategories[
-                          catIndex
-                        ].ratings.findIndex((r) => r.id === rating.id);
-                        newCategories[catIndex].ratings[ratingIndex].value =
-                          parseFloat(e.target.value);
-                        setCategories(newCategories);
-                      }}
-                      placeholder="0-10"
-                      min={0}
-                      max={10}
-                    />
-                    <button
-                      type="button"
-                      className="btn btn-increment"
-                      onClick={() => {
-                        const newCategories = [...categories];
-                        const catIndex = newCategories.findIndex(
-                          (c) => c.id === category.id
-                        );
-                        const ratingIndex = newCategories[
-                          catIndex
-                        ].ratings.findIndex((r) => r.id === rating.id);
-                        newCategories[catIndex].ratings[
-                          ratingIndex
-                        ].value += 0.5;
-                        setCategories(newCategories);
-                      }}
-                    >
-                      +
-                    </button>
-                  </div>
-                  <input
-                    className="rating-item-child emoji"
-                    type="text"
-                    value={rating.emoji}
-                    onChange={(e) => {
-                      const newCategories = [...categories];
-                      const catIndex = newCategories.findIndex(
-                        (c) => c.id === category.id
-                      );
-                      const ratingIndex = newCategories[
-                        catIndex
-                      ].ratings.findIndex((r) => r.id === rating.id);
-                      newCategories[catIndex].ratings[ratingIndex].emoji =
-                        e.target.value;
-                      setCategories(newCategories);
-                    }}
-                    placeholder={CHICKEN_EMOJIS.full}
-                    maxLength={1}
-                  />
-                </div>
-              ))}
-              {category.text && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const newCategories = [...categories];
-                    const catIndex = newCategories.findIndex(
-                      (c) => c.id === category.id
-                    );
-
-                    newCategories[catIndex].ratings.push(getNewRatingItem());
-                    setCategories(newCategories);
-                  }}
-                >
-                  Add Rating
-                </button>
-              )}
-            </Container>
-          );
-        })}
+        {categories.map((category) => (
+          <CategoryItem
+            key={category.id}
+            currentCategory={category}
+            updateCategories={setCategories}
+          />
+        ))}
         <button
           type="button"
           className="btn btn-add"
@@ -297,6 +167,147 @@ export default function CreateNewReview() {
         </button>
       </Container>
     </form>
+  );
+}
+
+type CategoryItemProps = {
+  currentCategory: CategoryType;
+  updateCategories: (updater: (prev: CategoryType[]) => CategoryType[]) => void;
+};
+
+export function CategoryItem({
+  currentCategory,
+  updateCategories,
+}: CategoryItemProps) {
+  const updateCategoryText = (text: string) => {
+    updateCategories((prevCategories) =>
+      prevCategories.map((prevCategory) =>
+        prevCategory.id === currentCategory.id
+          ? { ...prevCategory, text }
+          : prevCategory
+      )
+    );
+  };
+
+  const addNewRating = () => {
+    const newRating: RatingType = {
+      id: uuid(),
+      text: "",
+      value: 5,
+      category: currentCategory.id,
+      emoji: "",
+    };
+
+    updateCategories((prevCategories) =>
+      prevCategories.map((prevCategory) =>
+        prevCategory.id === currentCategory.id
+          ? { ...prevCategory, ratings: [...prevCategory.ratings, newRating] }
+          : prevCategory
+      )
+    );
+  };
+
+  return (
+    <div className="container category" key={currentCategory.id}>
+      <input
+        type="text"
+        className="form-label typewriter"
+        value={currentCategory.text}
+        placeholder="New Category"
+        onChange={(event) => updateCategoryText(event.target.value)}
+      />
+
+      {currentCategory.ratings?.map((rating) => (
+        <RatingItem
+          key={rating.id}
+          rating={rating}
+          categoryId={currentCategory.id}
+          updateCategories={updateCategories}
+        />
+      ))}
+
+      {currentCategory.text && (
+        <button type="button" onClick={addNewRating}>
+          Add Rating
+        </button>
+      )}
+    </div>
+  );
+}
+
+type RatingItemProps = {
+  rating: RatingType;
+  categoryId: string;
+  updateCategories: (updater: (prev: CategoryType[]) => CategoryType[]) => void;
+};
+
+export function RatingItem({
+  rating,
+  categoryId,
+  updateCategories,
+}: RatingItemProps) {
+  const updateRatingField = (
+    field: keyof RatingType,
+    value: ValueOf<RatingType>
+  ) => {
+    updateCategories((prev) => {
+      const newCats = [...prev];
+      const cat = newCats.find((c) => c.id === categoryId);
+      if (!cat) return prev;
+      const r = cat.ratings.find((r) => r.id === rating.id);
+      if (!r) return prev;
+      r[field] = value;
+      return newCats;
+    });
+  };
+
+  return (
+    <div key={rating.id} className="rating-item">
+      <div className="rating-item-child name">
+        <input
+          type="text"
+          className="form-label typewriter"
+          value={rating.text}
+          placeholder="New Rating"
+          onChange={(e) => updateRatingField("text", e.target.value)}
+        />
+      </div>
+      <div className="rating-item-child value">
+        <button
+          type="button"
+          className="btn btn-increment"
+          onClick={() => updateRatingField("value", rating.value - 0.5)}
+        >
+          -
+        </button>
+        <input
+          id={`rating-${rating.id}`}
+          type="number"
+          value={rating.value}
+          onChange={(e) =>
+            updateRatingField("value", parseFloat(e.target.value))
+          }
+          placeholder="0-10"
+          min={0}
+          max={10}
+        />
+        <button
+          type="button"
+          className="btn btn-increment"
+          onClick={() => updateRatingField("value", rating.value + 0.5)}
+        >
+          +
+        </button>
+      </div>
+      <input
+        className="rating-item-child emoji"
+        type="text"
+        value={rating.emoji}
+        onChange={(e) => updateRatingField("emoji", e.target.value)}
+        placeholder={CHICKEN_EMOJIS.full}
+        maxLength={1}
+      />
+    </div>
   );
 }
 
