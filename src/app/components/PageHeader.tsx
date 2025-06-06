@@ -13,8 +13,8 @@ export default function PageHeader({ setCurrentPage }) {
       setCurrentPage(pageName);
       router.push(`/${pageName}`);
     } else {
-      setCurrentPage("login");
-      router.push("/login");
+      setCurrentPage("home");
+      router.push("/home");
     }
   }
 

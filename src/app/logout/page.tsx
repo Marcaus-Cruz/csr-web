@@ -11,7 +11,7 @@ export default function Logout() {
 
   useEffect(() => {
     pb.authStore.clear(); // Clears authentication data
-    router.push("/login"); // Redirect to login page after logout
+    router.push("/home"); // Redirect to login page after logout
   }, []);
 
   return <div>Logging you out...</div>;

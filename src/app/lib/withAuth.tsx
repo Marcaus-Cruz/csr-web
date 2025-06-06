@@ -12,7 +12,7 @@ export const withAuth = (Component: React.ComponentType) => {
 
     useEffect(() => {
       if (!isLoggedIn()) {
-        router.push("/login"); // Redirect to login if not authenticated
+        router.push("/home"); // Redirect to login if not authenticated
       }
     }, [router]);
 
