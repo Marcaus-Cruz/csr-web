@@ -250,14 +250,14 @@ export function RatingItem({
     field: keyof RatingType,
     value: ValueOf<RatingType>
   ) => {
-    updateCategories((prev) => {
-      const newCats = [...prev];
-      const cat = newCats.find((c) => c.id === categoryId);
-      if (!cat) return prev;
-      const r = cat.ratings.find((r) => r.id === rating.id);
-      if (!r) return prev;
-      r[field] = value;
-      return newCats;
+    updateCategories((previousCategories) => {
+      const updatedCategories = [...previousCategories];
+      const updatingCategory = updatedCategories.find((existingCategory) => existingCategory.id === categoryId);
+      if (!updatingCategory) return previousCategories;
+      const updatedRating = updatingCategory.ratings.find((existingRating) => existingRating.id === rating.id);
+      if (!updatedRating) return previousCategories;
+      updatedRating[field] = value;
+      return updatedCategories;
     });
   };
 
