@@ -27,17 +27,8 @@ export default function CreateNewReview() {
 
   const router = useRouter();
 
-  async function create(e) {
-    console.log(`[CreateReview][onSubmit]`, {
-      restName,
-      sandName,
-      intro,
-      categories,
-      remarks,
-      existingHashTags,
-    });
-
-    e.preventDefault();
+  async function create(event) {
+    event.preventDefault();
 
     [restName, sandName, intro, remarks].forEach((text) => {
       if (!text) {
@@ -58,6 +49,36 @@ export default function CreateNewReview() {
       (category) => !BASE_CATEGORIES_IDS.includes(category.id)
     );
 
+    // * Set values for each category
+    categories.forEach((category) => {
+      if (category.ratings.length === 0) {
+        throw new Error(
+          `[CreateReview][onSubmit] - category ${category.id} has no ratings`
+        );
+      }
+      category.value = getAverageValue(category.ratings);
+    });
+
+    // * Calculate overall rating
+    const overallRating = getAverageValue(mainCategories);
+    const altRating = getAverageValue(categories);
+
+    // * Append hashtags
+    const hashtags = [...existingHashTags, ...CONSTANT_HASHTAGS];
+
+    console.log(`[CreateReview][onSubmit]`, {
+      restName,
+      sandName,
+      intro,
+      categories,
+      mainCategories,
+      extraCategories,
+      remarks,
+      hashtags,
+      overallRating,
+      altRating,
+    });
+
     await fetch("http://127.0.0.1:8090/api/collections/reviews/records", {
       method: "POST",
       headers: {
@@ -70,8 +91,10 @@ export default function CreateNewReview() {
         categories,
         mainCategories,
         extraCategories,
+        overallRating,
+        altRating,
         remarks,
-        existingHashTags,
+        hashtags,
       }),
     });
 
@@ -252,9 +275,13 @@ export function RatingItem({
   ) => {
     updateCategories((previousCategories) => {
       const updatedCategories = [...previousCategories];
-      const updatingCategory = updatedCategories.find((existingCategory) => existingCategory.id === categoryId);
+      const updatingCategory = updatedCategories.find(
+        (existingCategory) => existingCategory.id === categoryId
+      );
       if (!updatingCategory) return previousCategories;
-      const updatedRating = updatingCategory.ratings.find((existingRating) => existingRating.id === rating.id);
+      const updatedRating = updatingCategory.ratings.find(
+        (existingRating) => existingRating.id === rating.id
+      );
       if (!updatedRating) return previousCategories;
       updatedRating[field] = value;
       return updatedCategories;
@@ -290,6 +317,7 @@ export function RatingItem({
           placeholder="0-10"
           min={0}
           max={10}
+          step={0.5}
         />
         <button
           type="button"
@@ -422,14 +450,11 @@ function addExtraCategory() {}
 
 function QuestionSlider() {}
 
-function calculateCategoryRatings(ratings: RatingType[]) {
-  const total = ratings.reduce((acc, rating) => acc + rating.value, 0);
-  const average = total / ratings.length;
-  return average;
-}
-
-function calculateOverallRating(categories: CategoryType[]) {
-  const total = categories.reduce((acc, category) => acc + category.value, 0);
-  const average = total / categories.length;
+function getAverageValue(catsOrRatings: CategoryType[] | RatingType[]) {
+  const total = catsOrRatings.reduce(
+    (acc, category) => acc + category.value,
+    0
+  );
+  const average = parseFloat((total / catsOrRatings.length).toFixed(1));
   return average;
 }
