@@ -3,7 +3,6 @@ import type {
   CategoryType,
   DB_REVIEW,
 } from "@/app/types/category.types";
-import Link from "next/link";
 
 async function getReview(id: string) {
   console.log("[reviews][id][page][getReview]", { id });
@@ -182,6 +181,6 @@ function individualRatingText(
 }
 
 function Hashtags(hashtags: string[] = []): string {
-  if (!hashtags?.length) return `#${CONSTANT_HASHTAGS.join(" #")}`;
-  return `#${[...hashtags, ...CONSTANT_HASHTAGS].join(" #")}`;
+  if (!hashtags?.length) return ``;
+  return `#${[...hashtags].join(" #")}`;
 }

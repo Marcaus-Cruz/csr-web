@@ -12,6 +12,9 @@ import { v4 as uuid } from "uuid";
 import { withAuth } from "../lib/withAuth";
 import { CHICKEN_EMOJIS, CONSTANT_HASHTAGS } from "../reviews/[id]/page";
 import "./createPage.css";
+import PocketBase from "pocketbase";
+
+const pb = new PocketBase("http://127.0.0.1:8090");
 
 function CreateNewReview() {
   // TODO: if not signed in, redirect to login page
@@ -67,7 +70,10 @@ function CreateNewReview() {
     // * Append hashtags
     const hashtags = [...existingHashTags, ...CONSTANT_HASHTAGS];
 
+    const owner = pb.authStore.record?.id;
+
     console.log(`[CreateReview][onSubmit]`, {
+      owner,
       restName,
       sandName,
       intro,
@@ -86,8 +92,10 @@ function CreateNewReview() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${pb.authStore.token}`,
         },
         body: JSON.stringify({
+          owner,
           restName,
           sandName,
           intro,
