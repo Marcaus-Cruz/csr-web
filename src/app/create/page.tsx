@@ -5,14 +5,15 @@ import {
   BASE_CATEGORIES,
   BASE_CATEGORIES_IDS,
 } from "@/app/types/category.types";
+import { ValueOf } from "next/dist/shared/lib/constants";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { v4 as uuid } from "uuid";
+import { withAuth } from "../lib/withAuth";
 import { CHICKEN_EMOJIS, CONSTANT_HASHTAGS } from "../reviews/[id]/page";
 import "./createPage.css";
-import { ValueOf } from "next/dist/shared/lib/constants";
 
-export default function CreateNewReview() {
+function CreateNewReview() {
   // TODO: if not signed in, redirect to login page
 
   const [restName, setRestName] = useState("");
@@ -192,6 +193,8 @@ export default function CreateNewReview() {
     </form>
   );
 }
+
+export default withAuth(CreateNewReview);
 
 type CategoryItemProps = {
   currentCategory: CategoryType;

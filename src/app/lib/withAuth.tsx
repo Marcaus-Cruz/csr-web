@@ -1,5 +1,7 @@
+'use client';
+
 import { useEffect } from "react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import PocketBase from "pocketbase";
 
 const pb = new PocketBase("http://127.0.0.1:8090");
@@ -9,12 +11,12 @@ export const withAuth = (Component: React.ComponentType) => {
     const router = useRouter();
 
     useEffect(() => {
-      if (!pb.authStore.isValid) {
+      if (!isLoggedIn()) {
         router.push("/login"); // Redirect to login if not authenticated
       }
     }, [router]);
 
-    return pb.authStore.isValid ? <Component {...props} /> : null;
+    return isLoggedIn() ? <Component {...props} /> : null;
   };
 
   WithAuthComponent.displayName = `WithAuth(${
@@ -22,4 +24,8 @@ export const withAuth = (Component: React.ComponentType) => {
   })`;
 
   return WithAuthComponent;
+};
+
+export const isLoggedIn = () => {
+  return pb.authStore.isValid;
 };

@@ -4,7 +4,7 @@ import PageHeader from "./PageHeader";
 import { useState } from "react";
 import PageTitle from "./PageTitle";
 
-type PageKey = "home" | "reviews" | "create" | "edit" | "review" | "landing";
+type PageKey = "home" | "reviews" | "create" | "edit" | "review" | "landing" | 'login';
 
 export default function PageWrapper({
   children,

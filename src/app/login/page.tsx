@@ -1,53 +1,48 @@
-import { useState } from 'react';
-import { useRouter } from 'next/router';
-import PocketBase from 'pocketbase';
+"use client";
 
-const pb = new PocketBase('http://127.0.0.1:8090');
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import PocketBase from "pocketbase";
 
-export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
+const pb = new PocketBase("http://127.0.0.1:8090");
+
+export default function LoginPage() {
   const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (event: React.FormEvent) => {
+    event.preventDefault();
     try {
-      // Authenticate the user
-      const authData = await pb.collection('users').authWithPassword(email, password);
-      
-      console.log('Logged in:', authData);
-
-      // After successful login, redirect the user to a protected page
-      router.push('/dashboard'); // Replace with the path to your dashboard or home page
-
+      await pb.collection("users").authWithPassword(email, password);
+      router.push("/reviews"); // Change path as needed
     } catch (err: any) {
-      // If login fails, show an error message
-      setErrorMsg('Login failed: ' + (err?.message || 'Please check your credentials.'));
+      setErrorMsg("Login failed: " + (err?.message || ""));
     }
   };
 
   return (
-    <div>
+    <form onSubmit={handleLogin}>
       <h2>Login</h2>
-      {errorMsg && <p style={{ color: 'red' }}>{errorMsg}</p>}
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        /><br />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        /><br />
-        <button type="submit">Log In</button>
-      </form>
-    </div>
+      {errorMsg && <p style={{ color: "red" }}>{errorMsg}</p>}
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+      />
+      <br />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+      />
+      <br />
+      <button type="submit">Log In</button>
+    </form>
   );
 }

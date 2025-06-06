@@ -1,62 +1,61 @@
-import "./pageHeader.css";
+"use client";
+
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { isLoggedIn } from "../lib/withAuth";
+import "./pageHeader.css";
 
 export default function PageHeader({ setCurrentPage }) {
+  const router = useRouter();
+
+  function handleLoggedIn(pageName: pageKey) {
+    if (isLoggedIn()) {
+      setCurrentPage(pageName);
+      router.push(`/${pageName}`);
+    } else {
+      setCurrentPage("login");
+      router.push("/login");
+    }
+  }
+
   return (
     <header>
-      <Link
-        className="btn logo"
-        href="/home"
-        onClick={() => setCurrentPage("home")}
-      >
+      <button className="btn logo" onClick={() => handleLoggedIn("home")}>
         <Image src="/logo-csr.png" alt="logo" fill={true} />
-      </Link>
+      </button>
       <nav className="nav">
-        <Link
-          className="btn standard"
-          href="/home"
-          onClick={() => setCurrentPage("home")}
-        >
+        <button className="btn standard" onClick={() => handleLoggedIn("home")}>
           Home
-        </Link>
-        <Link
+        </button>
+        <button
           className="btn standard"
-          href="/reviews"
-          onClick={() => setCurrentPage("reviews")}
+          onClick={() => handleLoggedIn("reviews")}
         >
           Reviews
-        </Link>
-        <Link
+        </button>
+        <button
           className="btn standard"
-          href="/create"
-          onClick={() => setCurrentPage("create")}
+          onClick={() => handleLoggedIn("create")}
         >
           Create
-        </Link>
+        </button>
+        {!isLoggedIn() && (
+          <button
+            className="btn standard"
+            onClick={() => handleLoggedIn("login")}
+          >
+            Login
+          </button>
+        )}
+        {isLoggedIn() && (
+          <button
+            className="btn standard"
+            onClick={() => handleLoggedIn("logout")}
+          >
+            Logout
+          </button>
+        )}
       </nav>
     </header>
-    // <header>
-    //   <button className="btn logo" onClick={() => setCurrentPage("home")}>
-    //     <Image src="/logo-csr.png" alt="logo" fill={true} />
-    //   </button>
-    //   <nav className="nav">
-    //     <button className="btn standard" onClick={() => setCurrentPage("home")}>
-    //       Home
-    //     </button>
-    //     <button
-    //       className="btn standard"
-    //       onClick={() => setCurrentPage("reviews")}
-    //     >
-    //       Reviews
-    //     </button>
-    //     <button
-    //       className="btn standard"
-    //       onClick={() => setCurrentPage("create")}
-    //     >
-    //       Create
-    //     </button>
-    //   </nav>
-    // </header>
   );
 }
