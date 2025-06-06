@@ -80,24 +80,27 @@ function CreateNewReview() {
       altRating,
     });
 
-    await fetch("http://127.0.0.1:8090/api/collections/reviews/records", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        restName,
-        sandName,
-        intro,
-        categories,
-        mainCategories,
-        extraCategories,
-        overallRating,
-        altRating,
-        remarks,
-        hashtags,
-      }),
-    });
+    const response = await fetch(
+      "http://127.0.0.1:8090/api/collections/reviews/records",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          restName,
+          sandName,
+          intro,
+          categories,
+          mainCategories,
+          extraCategories,
+          overallRating,
+          altRating,
+          remarks,
+          hashtags,
+        }),
+      }
+    );
 
     setRestName("");
     setSandName("");
@@ -106,7 +109,9 @@ function CreateNewReview() {
     setRemarks("");
     setExistingHashTags([]);
 
-    router.refresh();
+    const data = await response.json();
+
+    router.push(`/reviews/${data.id}`);
   }
 
   return (

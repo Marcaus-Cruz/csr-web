@@ -45,7 +45,7 @@ export default async function ReviewPage({
         <br />
         {Hashtags(hashtags)}
       </div>
-      <Link className="btn edit" href="">Edit Review</Link>
+      <button className="btn edit">Edit Review</button>
     </div>
   );
 }
@@ -96,8 +96,8 @@ function ReviewRatingsSection({
   type: "main" | "extras";
 }>) {
   if (
-    (type === "main" && !review.mainCategories.length) ||
-    (type === "extras" && !review.extraCategories.length)
+    (type === "main" && !review.mainCategories?.length) ||
+    (type === "extras" && !review.extraCategories?.length)
   ) {
     return <div></div>;
   }
@@ -182,5 +182,6 @@ function individualRatingText(
 }
 
 function Hashtags(hashtags: string[] = []): string {
+  if (!hashtags?.length) return `#${CONSTANT_HASHTAGS.join(" #")}`;
   return `#${[...hashtags, ...CONSTANT_HASHTAGS].join(" #")}`;
 }
