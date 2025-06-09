@@ -14,7 +14,7 @@ import { CHICKEN_EMOJIS, CONSTANT_HASHTAGS } from "../reviews/[id]/page";
 import "./createPage.css";
 import PocketBase from "pocketbase";
 
-const pb = new PocketBase("http://127.0.0.1:8090");
+const pb = new PocketBase("http://127.0.0.1:8090"); // TODO: Make this an exportable const
 
 function CreateNewReview() {
   // TODO: if not signed in, redirect to login page
@@ -70,7 +70,7 @@ function CreateNewReview() {
     // * Append hashtags
     const hashtags = [...existingHashTags, ...CONSTANT_HASHTAGS];
 
-    const owner = pb.authStore.record?.id;
+    const owner = pb.authStore.record;
 
     console.log(`[CreateReview][onSubmit]`, {
       owner,
@@ -95,7 +95,7 @@ function CreateNewReview() {
           Authorization: `Bearer ${pb.authStore.token}`,
         },
         body: JSON.stringify({
-          owner,
+          owner: owner?.id,
           restName,
           sandName,
           intro,
