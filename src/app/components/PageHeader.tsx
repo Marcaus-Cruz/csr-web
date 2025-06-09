@@ -35,6 +35,12 @@ export default function PageHeader({ setCurrentPage }) {
         </button>
         <button
           className="btn standard"
+          onClick={() => handleLoggedIn("hitlist")}
+        >
+          Hitlist
+        </button>
+        <button
+          className="btn standard"
           onClick={() => handleLoggedIn("create")}
         >
           Create

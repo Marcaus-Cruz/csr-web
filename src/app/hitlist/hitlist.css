@@ -1,0 +1,5 @@
+.hitlist {
+    .hitlist-item {
+        display: flex;
+    }
+}
