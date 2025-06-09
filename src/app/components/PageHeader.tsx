@@ -5,6 +5,22 @@ import { useRouter } from "next/navigation";
 import { isLoggedIn } from "../lib/withAuth";
 import "./pageHeader.css";
 
+// TODO: useEffect to update on login change
+function getKeysToText(): { [key: string]: string } {
+  return isLoggedIn()
+    ? {
+        home: "Home",
+        reviews: "Reviews",
+        create: "Create",
+        hitlist: "Hitlist",
+        logout: "Logout",
+      }
+    : {
+        home: "Home",
+        login: "Login/Signup",
+      };
+}
+
 export default function PageHeader({ setCurrentPage }) {
   const router = useRouter();
 
@@ -24,43 +40,15 @@ export default function PageHeader({ setCurrentPage }) {
         <Image src="/logo-csr.png" alt="logo" fill={true} />
       </button>
       <nav className="nav">
-        <button className="btn standard" onClick={() => handleLoggedIn("home")}>
-          Home
-        </button>
-        <button
-          className="btn standard"
-          onClick={() => handleLoggedIn("reviews")}
-        >
-          Reviews
-        </button>
-        <button
-          className="btn standard"
-          onClick={() => handleLoggedIn("hitlist")}
-        >
-          Hitlist
-        </button>
-        <button
-          className="btn standard"
-          onClick={() => handleLoggedIn("create")}
-        >
-          Create
-        </button>
-        {!isLoggedIn() && (
+        {Object.entries(getKeysToText()).map(([key, text]) => (
           <button
             className="btn standard"
-            onClick={() => handleLoggedIn("login")}
+            key={key}
+            onClick={() => handleLoggedIn(key)}
           >
-            Login
+            {text}
           </button>
-        )}
-        {isLoggedIn() && (
-          <button
-            className="btn standard"
-            onClick={() => handleLoggedIn("logout")}
-          >
-            Logout
-          </button>
-        )}
+        ))}
       </nav>
     </header>
   );
