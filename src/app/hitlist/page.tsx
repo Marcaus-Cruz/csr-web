@@ -2,9 +2,33 @@
 
 import PocketBase from "pocketbase";
 import { useState } from "react";
+import { isLoggedIn } from "../lib/withAuth";
 import "./hitlist.css";
 
 const pb = new PocketBase("http://127.0.0.1:8090"); // TODO: Make this an exportable const
+
+async function writeToHitlist(statefulHitlist: string[]) {
+  console.log(`[Hitlist][${writeToHitlist.name}]`, { statefulHitlist });
+
+  if (isLoggedIn()) {
+    const userId = pb.authStore.record?.id ?? "";
+    const user = await pb.collection("users").getOne(userId);
+    const updatedHitlist = [...(user.hitlist ?? []), ...statefulHitlist];
+
+    console.warn(`[Hitlist][${writeToHitlist.name}][ADD]`, {
+      user,
+      userId,
+      updatedHitlist,
+    });
+
+    return await pb
+      .collection("users")
+      .update(userId, { hitlist: updatedHitlist });
+  } else {
+    console.warn("No user is logged in...");
+    return Promise.resolve();
+  }
+}
 
 export default function HitListEdit() {
   const ownerHitlist = pb.authStore.record?.hitlist ?? [];
@@ -35,10 +59,11 @@ export default function HitListEdit() {
             />
             <button
               className="btn"
-              onClick={() => {
+              onClick={async () => {
                 // TODO: Save to PocketBase
 
                 setHitlist([...hitlist, newHitlistItem]);
+                await writeToHitlist(hitlist);
                 setIsAdding(false);
                 setNewHitlistItem("");
               }}
