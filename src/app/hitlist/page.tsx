@@ -2,18 +2,22 @@
 
 import PocketBase from "pocketbase";
 import { useState } from "react";
+import { v4 as uuid } from "uuid";
 import { isLoggedIn } from "../lib/withAuth";
 import "./hitlist.css";
 
 const pb = new PocketBase("http://127.0.0.1:8090"); // TODO: Make this an exportable const
 
-async function writeToHitlist(statefulHitlist: string[]) {
+async function writeToHitlist(statefulHitlist: Hit[]) {
   console.log(`[Hitlist][${writeToHitlist.name}]`, { statefulHitlist });
 
   if (isLoggedIn()) {
     const userId = pb.authStore.record?.id ?? "";
     const user = await pb.collection("users").getOne(userId);
-    const updatedHitlist = [...(user.hitlist ?? []), ...statefulHitlist];
+    console.warn({ user });
+
+    // ! need to reliably have most up-to-date hitlist on client and overwrite that in DB
+    const updatedHitlist = removeDuplicates(statefulHitlist);
 
     console.warn(`[Hitlist][${writeToHitlist.name}][ADD]`, {
       user,
@@ -30,22 +34,49 @@ async function writeToHitlist(statefulHitlist: string[]) {
   }
 }
 
+function removeDuplicates(anyArray: Hit[]) {
+  return anyArray.filter(
+    (o, index, arr) =>
+      arr.findIndex((item) => JSON.stringify(item) === JSON.stringify(o)) ===
+      index
+  );
+}
+
+type Hit = {
+  id: string;
+  name: string;
+};
+
 export default function HitListEdit() {
-  const ownerHitlist = pb.authStore.record?.hitlist ?? [];
+  const ownerHitlist = removeDuplicates(pb.authStore.record?.hitlist ?? []);
   console.log(`[Hitlist]`, { ownerHitlist });
 
-  const [hitlist, setHitlist] = useState(ownerHitlist);
+  const [hitlist, setHitlist] = useState<Hit[]>(ownerHitlist);
   const [isAdding, setIsAdding] = useState(false);
-  const [newHitlistItem, setNewHitlistItem] = useState("");
+  const [newHitlistItem, setNewHitlistItem] = useState<Hit>({
+    id: uuid(),
+    name: "",
+  });
 
   return (
     <div className="hitlist edit">
       <h1>Hitlist</h1>
       <ul>
         {hitlist.map((placeToHit) => (
-          <div key={`item-${placeToHit}`} className="hitlist-item">
-            <div key={placeToHit}>{placeToHit}</div>
-            <button className="btn">Mark as Hit</button>
+          <div key={`item-${placeToHit.id}`} className="hitlist-item">
+            <div key={placeToHit.id}>{placeToHit.name}</div>
+            <button
+              className="btn"
+              onClick={async () => {
+                const newHitlist = hitlist.filter(
+                  (item) => item.id !== placeToHit.id
+                );
+                setHitlist(newHitlist);
+                await writeToHitlist(newHitlist);
+              }}
+            >
+              Mark as Hit
+            </button>
           </div>
         ))}
         {isAdding && (
@@ -54,18 +85,27 @@ export default function HitListEdit() {
               type="text"
               placeholder="Add to hitlist"
               className="typewriter"
-              value={newHitlistItem}
-              onChange={(event) => setNewHitlistItem(event.target.value)}
+              value={newHitlistItem.name}
+              onChange={(event) =>
+                setNewHitlistItem((prev) => ({
+                  ...prev,
+                  name: event.target.value,
+                }))
+              }
             />
             <button
               className="btn"
               onClick={async () => {
-                // TODO: Save to PocketBase
+                const newHitlist = [...hitlist, newHitlistItem];
+                setHitlist(newHitlist);
 
-                setHitlist([...hitlist, newHitlistItem]);
-                await writeToHitlist(hitlist);
+                if (pb.authStore.record) {
+                  pb.authStore.record.hitlist = newHitlist;
+                }
+
+                await writeToHitlist(newHitlist);
                 setIsAdding(false);
-                setNewHitlistItem("");
+                setNewHitlistItem({ id: uuid(), name: "" });
               }}
             >
               Confirm
