@@ -1,14 +1,14 @@
 import type { Hitlist } from "../types/hitlist.types";
-import pb from './pocketbase';
+import { COLLECTION_USER, getLocalHitlist, getLocalId } from './pocketbase';
 
 export const getUserHitlist = async (): Promise<Hitlist> => {
   console.log(`[hitlistUtils][getUserHitlist]`);
 
-  const localHitlist = pb.authStore?.record?.hitlist ?? [];
-  const userId = pb.authStore?.record?.id ?? "";
+  const localHitlist = getLocalHitlist();
+  const userId = getLocalId();
 
   if (userId) {
-    const user = await pb.collection("users").getOne(userId);
+    const user = await COLLECTION_USER.getOne(userId);
     const dbHitlist = user.hitlist;
 
     return removeDuplicateHits([...localHitlist, ...dbHitlist]);

@@ -3,7 +3,12 @@
 import { useState } from "react";
 import { v4 as uuid } from "uuid";
 import { removeDuplicateHits } from "../lib/hitlistUtils";
-import pb from "../lib/pocketbase";
+import {
+  COLLECTION_USER,
+  getLocalHitlist,
+  getLocalId,
+  setLocalHitlist,
+} from "../lib/pocketbase";
 import { isLoggedIn } from "../lib/withAuth";
 import type { Hit, Hitlist } from "../types/hitlist.types";
 import "./hitlist.css";
@@ -12,18 +17,10 @@ async function writeToHitlist(statefulHitlist: Hitlist) {
   console.log(`[Hitlist][${writeToHitlist.name}]`, { statefulHitlist });
 
   if (isLoggedIn()) {
-    const userId = pb.authStore.record?.id ?? "";
-    const user = await pb.collection("users").getOne(userId);
-
+    const userId = getLocalId();
     const updatedHitlist = removeDuplicateHits(statefulHitlist);
 
-    console.warn(`[Hitlist][${writeToHitlist.name}][ADD]`, {
-      user,
-      userId,
-      updatedHitlist,
-    });
-
-    return await pb.collection("users").update(userId, {
+    return await COLLECTION_USER.update(userId, {
       hitlist: updatedHitlist,
     });
   } else {
@@ -33,7 +30,7 @@ async function writeToHitlist(statefulHitlist: Hitlist) {
 }
 
 export default function HitListEdit() {
-  const ownerHitlist = removeDuplicateHits(pb.authStore.record?.hitlist ?? []);
+  const ownerHitlist = removeDuplicateHits(getLocalHitlist());
 
   const [hitlist, setHitlist] = useState<Hitlist>(ownerHitlist);
   const [isAdding, setIsAdding] = useState(false);
@@ -80,14 +77,14 @@ export default function HitListEdit() {
             <button
               className="btn"
               onClick={async () => {
-                const newHitlist = [...hitlist, newHitlistItem];
-                setHitlist(newHitlist);
+                if (newHitlistItem.name) {
+                  const newHitlist = [...hitlist, newHitlistItem];
 
-                if (pb.authStore.record) {
-                  pb.authStore.record.hitlist = newHitlist;
+                  setHitlist(newHitlist);
+                  setLocalHitlist(newHitlist);
+
+                  await writeToHitlist(newHitlist);
                 }
-
-                await writeToHitlist(newHitlist);
                 setIsAdding(false);
                 setNewHitlistItem({ id: uuid(), name: "" });
               }}
