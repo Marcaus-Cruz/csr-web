@@ -49,7 +49,6 @@ export default async function ReviewPage({
         <br />
         {Hashtags(hashtags)}
       </div>
-      <button className="btn edit">Edit Review</button>
     </div>
   );
 }
