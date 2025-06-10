@@ -7,7 +7,7 @@ export default function ReviewCard({ review }: { review: any }) {
   console.log("[ReviewCard]", { review });
 
   const { id, restName, sandName, thumbnail } = review;
-  const imageUrl = thumbnail ?? "/logo-csr.png";
+  const imageUrl = thumbnail || "/logo-csr.png";
 
   const router = useRouter();
   const handleClick = (id: string) => () => {
