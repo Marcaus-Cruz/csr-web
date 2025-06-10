@@ -1,23 +1,21 @@
 "use client";
 
-import PocketBase from "pocketbase";
 import { useState } from "react";
 import { v4 as uuid } from "uuid";
+import { removeDuplicateHits } from "../lib/hitlistUtils";
+import pb from "../lib/pocketbase";
 import { isLoggedIn } from "../lib/withAuth";
+import type { Hit, Hitlist } from "../types/hitlist.types";
 import "./hitlist.css";
 
-const pb = new PocketBase("http://127.0.0.1:8090"); // TODO: Make this an exportable const
-
-async function writeToHitlist(statefulHitlist: Hit[]) {
+async function writeToHitlist(statefulHitlist: Hitlist) {
   console.log(`[Hitlist][${writeToHitlist.name}]`, { statefulHitlist });
 
   if (isLoggedIn()) {
     const userId = pb.authStore.record?.id ?? "";
     const user = await pb.collection("users").getOne(userId);
-    console.warn({ user });
 
-    // ! need to reliably have most up-to-date hitlist on client and overwrite that in DB
-    const updatedHitlist = removeDuplicates(statefulHitlist);
+    const updatedHitlist = removeDuplicateHits(statefulHitlist);
 
     console.warn(`[Hitlist][${writeToHitlist.name}][ADD]`, {
       user,
@@ -25,33 +23,19 @@ async function writeToHitlist(statefulHitlist: Hit[]) {
       updatedHitlist,
     });
 
-    return await pb
-      .collection("users")
-      .update(userId, { hitlist: updatedHitlist });
+    return await pb.collection("users").update(userId, {
+      hitlist: updatedHitlist,
+    });
   } else {
     console.warn("No user is logged in...");
     return Promise.resolve();
   }
 }
 
-function removeDuplicates(anyArray: Hit[]) {
-  return anyArray.filter(
-    (o, index, arr) =>
-      arr.findIndex((item) => JSON.stringify(item) === JSON.stringify(o)) ===
-      index
-  );
-}
-
-type Hit = {
-  id: string;
-  name: string;
-};
-
 export default function HitListEdit() {
-  const ownerHitlist = removeDuplicates(pb.authStore.record?.hitlist ?? []);
-  console.log(`[Hitlist]`, { ownerHitlist });
+  const ownerHitlist = removeDuplicateHits(pb.authStore.record?.hitlist ?? []);
 
-  const [hitlist, setHitlist] = useState<Hit[]>(ownerHitlist);
+  const [hitlist, setHitlist] = useState<Hitlist>(ownerHitlist);
   const [isAdding, setIsAdding] = useState(false);
   const [newHitlistItem, setNewHitlistItem] = useState<Hit>({
     id: uuid(),
