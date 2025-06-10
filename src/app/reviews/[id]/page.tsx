@@ -1,8 +1,9 @@
 import type {
-  RatingType,
   CategoryType,
   DB_REVIEW,
+  RatingType,
 } from "@/app/types/category.types";
+import ReviewHitListClient from "../../components/ReviewHitlistClient";
 
 async function getReview(id: string) {
   console.log("[reviews][id][page][getReview]", { id });
@@ -18,11 +19,13 @@ async function getReview(id: string) {
 export default async function ReviewPage({
   params,
 }: Readonly<{
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }>) {
   console.log("[reviews][id][page]", { params });
 
-  const review = await getReview(params.id);
+  const { id: reviewId } = await params;
+
+  const review = await getReview(reviewId);
 
   console.warn({ review });
 
@@ -41,6 +44,8 @@ export default async function ReviewPage({
         <ReviewRatingsSection type="extras" review={review} />
         <br />
         <div className="text remarks">{remarks}</div>
+        <br />
+        <ReviewHitListClient />
         <br />
         {Hashtags(hashtags)}
       </div>
