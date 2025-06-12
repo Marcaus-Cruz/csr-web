@@ -1,15 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { isLoggedIn } from "../lib/withAuth";
 import "./pageHeader.css";
 
-// TODO: useEffect to update on login change
-function getKeysToText(): { [key: string]: string } {
+function getKeysToButtonText(): { [key: string]: string } {
   return isLoggedIn()
     ? {
-        home: "Home",
         reviews: "Reviews",
         create: "Create",
         hitlist: "Hitlist",
@@ -21,16 +19,15 @@ function getKeysToText(): { [key: string]: string } {
       };
 }
 
-export default function PageHeader({ setCurrentPage }) {
+export default function PageHeader() {
   const router = useRouter();
+  const pathname = usePathname();
 
-  function handleLoggedIn(pageName: pageKey) {
+  console.log({ pathname });
+
+  function handleLoggedIn(pageName: string) {
     if (isLoggedIn()) {
-      setCurrentPage(pageName);
       router.push(`/${pageName}`);
-    } else {
-      setCurrentPage("home");
-      router.push("/home");
     }
   }
 
@@ -40,7 +37,7 @@ export default function PageHeader({ setCurrentPage }) {
         <Image src="/logo-csr.png" alt="logo" fill={true} />
       </button>
       <nav className="nav">
-        {Object.entries(getKeysToText()).map(([key, text]) => (
+        {Object.entries(getKeysToButtonText()).map(([key, text]) => (
           <button
             className="btn standard"
             key={key}
