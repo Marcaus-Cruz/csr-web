@@ -42,16 +42,6 @@ function CreateNewReview() {
       }
     });
 
-    // * Separate categories. Omit any that are left empty
-    const mainCategories = categories.filter(
-      (category) =>
-        BASE_CATEGORIES_IDS.includes(category.id) && category.text.trim()
-    );
-    const extraCategories = categories.filter(
-      (category) =>
-        !BASE_CATEGORIES_IDS.includes(category.id) && category.text.trim()
-    );
-
     // * Set values for each category
     const filteredCategories = categories
       .filter(
@@ -59,15 +49,24 @@ function CreateNewReview() {
           categoryName.trim() && ratings.length > 0
       )
       .map((category) => {
-        const filteredRatings = category.ratings.filter(
-          (rating) => rating.text.trim() !== ""
+        const filteredRatings = category.ratings.filter((rating) =>
+          rating.text.trim()
         );
 
         return {
           ...category,
+          ratings: filteredRatings,
           value: getAverageValue(filteredRatings),
         };
       });
+
+    // * Separate categories. Omit any that are left empty
+    const mainCategories = filteredCategories.filter((category) =>
+      BASE_CATEGORIES_IDS.includes(category.id)
+    );
+    const extraCategories = filteredCategories.filter(
+      (category) => !BASE_CATEGORIES_IDS.includes(category.id)
+    );
 
     // * Calculate overall rating
     const overallRating = getAverageValue(mainCategories);

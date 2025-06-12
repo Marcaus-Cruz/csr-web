@@ -162,12 +162,17 @@ function CategoryItem(categoryItemData: Readonly<CategoryType>) {
 function RatingItem(ratingItemData: Readonly<Partial<RatingType>>) {
   console.log("[ReviewPage][RatingItem]", { ratingItemData });
 
+  if (!ratingItemData.text) {
+    return <div></div>;
+  }
+
   return (
     <div className="rating">
       <div className="rating-text">
         {individualRatingText(
-          ratingItemData.text ?? "",
-          ratingItemData.value ?? 0
+          ratingItemData.text,
+          ratingItemData.value ?? 0,
+          ratingItemData.emoji
         )}
       </div>
     </div>

@@ -20,7 +20,7 @@ export default function HitlistClient() {
           </div>
           <ul>
             {hitlist.map((hit) => (
-              <li key={hit.id}>{hit.name}</li>
+              <li key={hit.id}>- {hit.name}</li>
             ))}
           </ul>
           <br />
