@@ -13,12 +13,11 @@ import { withAuth } from "../lib/withAuth";
 import { CHICKEN_EMOJIS, CONSTANT_HASHTAGS } from "../reviews/[id]/page";
 import "./createPage.css";
 import PocketBase from "pocketbase";
+import pb from "../lib/pocketbase";
 
-const pb = new PocketBase("http://127.0.0.1:8090"); // TODO: Make this an exportable const
+// const pb = new PocketBase("http://127.0.0.1:8090"); // TODO: Make this an exportable const
 
 function CreateNewReview() {
-  // TODO: if not signed in, redirect to login page
-
   const [restName, setRestName] = useState("");
   const [sandName, setSandName] = useState("");
   const [intro, setIntro] = useState("");
@@ -250,7 +249,8 @@ export function CategoryItem({
     <div className="container category" key={currentCategory.id}>
       <input
         type="text"
-        className="form-label typewriter"
+        name={currentCategory.id}
+        className="form-label"
         value={currentCategory.text}
         placeholder="New Category"
         onChange={(event) => updateCategoryText(event.target.value)}
@@ -309,7 +309,8 @@ export function RatingItem({
       <div className="rating-item-child name">
         <input
           type="text"
-          className="form-label typewriter"
+          name={rating.text}
+          className="form-label"
           value={rating.text}
           placeholder="New Rating"
           onChange={(e) => updateRatingField("text", e.target.value)}
@@ -344,6 +345,7 @@ export function RatingItem({
         </button>
       </div>
       <input
+        name={`${rating.id}-emoji`}
         className="rating-item-child emoji"
         type="text"
         value={rating.emoji}
@@ -429,6 +431,7 @@ function HashtagSection({
           <div className="hashtag new-hashtag">
             #
             <input
+              name={newHashtag}
               type="text"
               value={newHashtag}
               onChange={(e) => setNewHashtag(e.target.value)}
@@ -442,7 +445,7 @@ function HashtagSection({
       {existingHashTags.map((hashtag) => {
         return (
           <div key={hashtag} className="hashtag">
-            #<input type="text" value={hashtag} disabled />
+            #<input name={hashtag} type="text" value={hashtag} disabled />
             <button className="btn" onClick={() => removeHashtag(hashtag)}>
               -
             </button>
@@ -450,10 +453,22 @@ function HashtagSection({
         );
       })}
       <div className="hashtag">
-        #<input type="text" value={CONSTANT_HASHTAGS[0]} disabled />
+        #
+        <input
+          name={CONSTANT_HASHTAGS[0]}
+          type="text"
+          value={CONSTANT_HASHTAGS[0]}
+          disabled
+        />
       </div>
       <div className="hashtag">
-        #<input type="text" value={CONSTANT_HASHTAGS[1]} disabled />
+        #
+        <input
+          name={CONSTANT_HASHTAGS[1]}
+          type="text"
+          value={CONSTANT_HASHTAGS[1]}
+          disabled
+        />
       </div>
     </div>
   );
