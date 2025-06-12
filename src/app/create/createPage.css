@@ -38,6 +38,26 @@ form {
   }
 }
 
+@keyframes blinkEmptyInput {
+  from{
+    opacity: 1;
+  }
+  to {
+    opacity: 0.25;
+  }
+}
+
+
+.form-input.text.empty {
+  animation: blinkEmptyInput 1s infinite alternate ease-in;
+
+}
+
+.empty {
+  /* color: red;
+  border-color: red; */
+}
+
 .container.descriptors {
   text-align: center;
 
@@ -70,30 +90,5 @@ form {
         flex: 0.25;
       }
     }
-  }
-}
-
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-
-  width: 50%;
-  height: 50%;
-  margin: auto;
-
-  &::before {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    width: 100vw;
-    height: 100vh;
-    z-index: -1;
   }
 }

@@ -9,13 +9,10 @@ import { ValueOf } from "next/dist/shared/lib/constants";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { v4 as uuid } from "uuid";
+import pb from "../lib/pocketbase";
 import { withAuth } from "../lib/withAuth";
 import { CHICKEN_EMOJIS, CONSTANT_HASHTAGS } from "../reviews/[id]/page";
 import "./createPage.css";
-import PocketBase from "pocketbase";
-import pb from "../lib/pocketbase";
-
-// const pb = new PocketBase("http://127.0.0.1:8090"); // TODO: Make this an exportable const
 
 function CreateNewReview() {
   const [restName, setRestName] = useState("");
@@ -45,26 +42,36 @@ function CreateNewReview() {
       }
     });
 
-    const mainCategories = categories.filter((category) =>
-      BASE_CATEGORIES_IDS.includes(category.id)
+    // * Separate categories. Omit any that are left empty
+    const mainCategories = categories.filter(
+      (category) =>
+        BASE_CATEGORIES_IDS.includes(category.id) && category.text.trim()
     );
     const extraCategories = categories.filter(
-      (category) => !BASE_CATEGORIES_IDS.includes(category.id)
+      (category) =>
+        !BASE_CATEGORIES_IDS.includes(category.id) && category.text.trim()
     );
 
     // * Set values for each category
-    categories.forEach((category) => {
-      if (category.ratings.length === 0) {
-        throw new Error(
-          `[CreateReview][onSubmit] - category ${category.id} has no ratings`
+    const filteredCategories = categories
+      .filter(
+        ({ text: categoryName, ratings }) =>
+          categoryName.trim() && ratings.length > 0
+      )
+      .map((category) => {
+        const filteredRatings = category.ratings.filter(
+          (rating) => rating.text.trim() !== ""
         );
-      }
-      category.value = getAverageValue(category.ratings);
-    });
+
+        return {
+          ...category,
+          value: getAverageValue(filteredRatings),
+        };
+      });
 
     // * Calculate overall rating
     const overallRating = getAverageValue(mainCategories);
-    const altRating = getAverageValue(categories);
+    const altRating = getAverageValue(filteredCategories);
 
     // * Append hashtags
     const hashtags = [...existingHashTags, ...CONSTANT_HASHTAGS];
@@ -77,6 +84,7 @@ function CreateNewReview() {
       sandName,
       intro,
       categories,
+      filteredCategories,
       mainCategories,
       extraCategories,
       remarks,
@@ -98,7 +106,7 @@ function CreateNewReview() {
           restName,
           sandName,
           intro,
-          categories,
+          categories: filteredCategories,
           mainCategories,
           extraCategories,
           overallRating,
@@ -124,25 +132,25 @@ function CreateNewReview() {
   return (
     <form onSubmit={create} className={`create-review-form`}>
       <Container className="descriptors">
-        <label htmlFor="restName" className="form-label">
+        <div className={`form-label${!restName ? " empty" : ""}`}>
           Resturaunt ⇒
-        </label>
+        </div>
         <input
           type="text"
           name="restName"
-          className="form-input text"
+          className={`form-input text${!restName ? " empty" : ""}`}
           minLength={1}
           maxLength={50}
           value={restName}
           onChange={(e) => setRestName(e.target.value)}
         />
-        <label htmlFor="sandName" className="form-label">
+        <div className={`form-label${!sandName ? " empty" : ""}`}>
           Sandwich ⇒
-        </label>
+        </div>
         <input
           type="text"
           name="sandName"
-          className="form-input text"
+          className={`form-input text${!sandName ? " empty" : ""}`}
           minLength={1}
           maxLength={50}
           value={sandName}
@@ -150,12 +158,10 @@ function CreateNewReview() {
         />
       </Container>
       <Container className="intro">
-        <label htmlFor="intro" className="form-label">
-          Intro ⇒
-        </label>
+        <div className={`form-label${!intro ? " empty" : ""}`}>Intro ⇒</div>
         <textarea
           name="intro"
-          className="form-input text long"
+          className={`form-input text long${!intro ? " empty" : ""}`}
           minLength={1}
           value={intro}
           onChange={(e) => setIntro(e.target.value)}
@@ -181,12 +187,10 @@ function CreateNewReview() {
         </button>
       </Container>
       <Container className="remarks">
-        <label htmlFor="remarks" className="form-label">
-          Remarks ⇒
-        </label>
+        <div className={`form-label${!remarks ? " empty" : ""}`}>Remarks ⇒</div>
         <textarea
           name="remarks"
-          className="form-input text long"
+          className={`form-input text long${!remarks ? " empty" : ""}`}
           minLength={1}
           value={remarks}
           onChange={(e) => setRemarks(e.target.value)}
@@ -250,9 +254,9 @@ export function CategoryItem({
       <input
         type="text"
         name={currentCategory.id}
-        className="form-label"
+        className={`form-label${!currentCategory.text ? " empty" : ""}`}
         value={currentCategory.text}
-        placeholder="New Category"
+        placeholder="This Category will not be counted."
         onChange={(event) => updateCategoryText(event.target.value)}
       />
 
@@ -310,9 +314,9 @@ export function RatingItem({
         <input
           type="text"
           name={rating.text}
-          className="form-label"
+          className={`form-label${!rating.text ? " empty" : ""}`}
           value={rating.text}
-          placeholder="New Rating"
+          placeholder="Rating will not be counted."
           onChange={(e) => updateRatingField("text", e.target.value)}
         />
       </div>
@@ -451,13 +455,6 @@ function HashtagSection({
     </div>
   );
 }
-
-function deleteCategory(categoryId: string) {}
-
-// Hit + button
-function addExtraCategory() {}
-
-function QuestionSlider() {}
 
 function getAverageValue(catsOrRatings: CategoryType[] | RatingType[]) {
   const total = catsOrRatings.reduce(
