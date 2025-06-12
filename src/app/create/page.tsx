@@ -357,16 +357,6 @@ export function RatingItem({
   );
 }
 
-function getNewRatingItem(): RatingType {
-  return {
-    id: uuid(),
-    text: "",
-    value: 5,
-    category: "",
-    emoji: "",
-  };
-}
-
 function getNewCategoryItem(): CategoryType {
   return {
     id: uuid(),
@@ -379,22 +369,6 @@ function getNewCategoryItem(): CategoryType {
 // TODO: Create into component
 export function Container({ children, className = "" }) {
   return <div className={`container ${className}`}>{children}</div>;
-}
-
-function AddButton({ isOnScreen, startAddFunction, elementToDisplay }) {
-  if (!isOnScreen) {
-    return (
-      <button
-        type="button"
-        className="btn btn-add"
-        onClick={() => startAddFunction()}
-      >
-        +
-      </button>
-    );
-  }
-
-  return elementToDisplay;
 }
 
 type HashtagSectionProps = Readonly<{
@@ -424,24 +398,28 @@ function HashtagSection({
 
   return (
     <div className="container hashtags">
-      <AddButton
-        isOnScreen={isAddingHashtag}
-        startAddFunction={() => setIsAddingHashtag(true)}
-        elementToDisplay={
-          <div className="hashtag new-hashtag">
-            #
-            <input
-              name={newHashtag}
-              type="text"
-              value={newHashtag}
-              onChange={(e) => setNewHashtag(e.target.value)}
-            />
-            <button className="btn" onClick={() => saveHashtag()}>
-              Done
-            </button>
-          </div>
-        }
-      />
+      {!isAddingHashtag ? (
+        <button
+          type="button"
+          className="btn btn-add"
+          onClick={() => setIsAddingHashtag(true)}
+        >
+          +
+        </button>
+      ) : (
+        <div className="hashtag new-hashtag">
+          #
+          <input
+            name={newHashtag}
+            type="text"
+            value={newHashtag}
+            onChange={(e) => setNewHashtag(e.target.value)}
+          />
+          <button className="btn" onClick={() => saveHashtag()}>
+            Done
+          </button>
+        </div>
+      )}
       {existingHashTags.map((hashtag) => {
         return (
           <div key={hashtag} className="hashtag">
