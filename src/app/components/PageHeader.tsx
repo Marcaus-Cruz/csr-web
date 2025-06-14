@@ -15,7 +15,8 @@ function getKeysToButtonText(): { [key: string]: string } {
       }
     : {
         home: "Home",
-        login: "Login/Signup",
+        login: "Login",
+        signup: "Sign Up",
       };
 }
 
@@ -26,9 +27,7 @@ export default function PageHeader() {
   console.log({ pathname });
 
   function handleLoggedIn(pageName: string) {
-    // if (isLoggedIn()) {
-      router.push(`/${pageName}`);
-    // }
+    router.push(`/${pageName}`);
   }
 
   return (
