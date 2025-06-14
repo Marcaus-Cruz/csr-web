@@ -78,3 +78,38 @@ a {
     background: var(--color-btn-main);
   }
 }
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+  padding: 4em 2em;
+  color: black;
+  border-radius: 1em;
+  border: 0.1em solid black;
+  background-color: ghostwhite;
+  text-align: center;
+
+  .options {
+    display: flex;
+    flex-direction: column;
+  }
+
+  input {
+    font-size: 1em;
+    margin: 0.5em auto;
+
+    padding: 0.25em;
+    border: 0.1em solid black;
+  }
+
+  .text {
+    font-size: 0.8em;
+  }
+
+  .btn {
+    --color-btn-secondary: ghostwhite;
+  }
+}

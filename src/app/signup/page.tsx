@@ -1,17 +1,16 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import PocketBase from 'pocketbase';
-
-const pb = new PocketBase('http://127.0.0.1:8090');
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import ExistingAccountButton from "../components/ExistingAccountButton";
+import pb from "../lib/pocketbase";
 
 export default function SignupPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
   const handleSignup = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -22,47 +21,53 @@ export default function SignupPage() {
     }
 
     try {
-      const newUser = await pb.collection('users').create({
+      const newUser = await pb.collection("users").create({
         email,
         password,
         passwordConfirm: confirmPassword,
       });
 
-      await pb.collection('users').authWithPassword(email, password);
+      await pb.collection("users").authWithPassword(email, password);
 
-      router.push('/reviews');
-
+      router.push("/reviews");
     } catch (error: any) {
-      setErrorMsg(error?.message || 'Signup failed');
+      setErrorMsg(error?.message || "Signup failed");
     }
   };
 
   return (
-    <form onSubmit={handleSignup}>
-      <h2>Create Account</h2>
-      {errorMsg && <p style={{ color: 'red' }}>{errorMsg}</p>}
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-      /><br />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-      /><br />
-      <input
-        type="password"
-        placeholder="Confirm Password"
-        value={confirmPassword}
-        onChange={(e) => setConfirmPassword(e.target.value)}
-        required
-      /><br />
-      <button type="submit">Sign Up</button>
-    </form>
+    <div className="page sign-up">
+      <form className="container sign-up" onSubmit={handleSignup}>
+        <h2 className="prompt">Create Account</h2>
+        <div className="options">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
+          {errorMsg && <p style={{ color: "red" }}>{errorMsg}</p>}
+          <button className="btn btn-sign-up" type="submit">
+            Sign Up
+          </button>
+          {errorMsg && <ExistingAccountButton mightHaveExistingAccount={true} />}
+        </div>
+      </form>
+    </div>
   );
 }

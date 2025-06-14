@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import PocketBase from "pocketbase";
-
-const pb = new PocketBase("http://127.0.0.1:8090");
+import "../home/homePage.css";
+import pb from "../lib/pocketbase";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -23,26 +22,32 @@ export default function LoginPage() {
   };
 
   return (
-    <form onSubmit={handleLogin}>
-      <h2>Login</h2>
-      {errorMsg && <p style={{ color: "red" }}>{errorMsg}</p>}
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-      />
-      <br />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-      />
-      <br />
-      <button type="submit">Log In</button>
-    </form>
+    <div className="page not-logged-in">
+      <form className="container login" onSubmit={handleLogin}>
+        <h2 className="prompt">Login</h2>
+        <div className="options">
+          <input
+            name="email"
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            name="password"
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          {errorMsg && <p style={{ color: "red" }}>{errorMsg}</p>}
+          <button className="btn login" type="submit">
+            Log In
+          </button>
+        </div>
+      </form>
+    </div>
   );
 }

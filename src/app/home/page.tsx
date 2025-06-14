@@ -2,8 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import ExistingAccountButton from "../components/ExistingAccountButton";
 import { isLoggedIn } from "../lib/withAuth";
 import "./homePage.css";
+
+// TODO: New components - (containers), .page on layout container, options, error message
 
 export default function HomePage() {
   const router = useRouter();
@@ -20,16 +23,15 @@ export default function HomePage() {
 
   return (
     <div className="page not-logged-in">
-      <div className="container login">
-        <div className="login-prompt">Sign up and streamline your reviews</div>
-        <div className="login-options">
+      <div className="container home">
+        <h2 className="login-prompt prompt">
+          Get ready to streamline your reviews
+        </h2>
+        <div className="options">
           <button className="btn btn-signup" onClick={handleClick("/signup")}>
             Sign Up
           </button>
-          <div>Already have an account?</div>
-          <button className="btn btn-login" onClick={handleClick("/login")}>
-            Login
-          </button>
+          <ExistingAccountButton mightHaveExistingAccount={true} />
         </div>
       </div>
     </div>
