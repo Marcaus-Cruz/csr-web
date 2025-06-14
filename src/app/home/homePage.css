@@ -1,0 +1,28 @@
+.page.not-logged-in {
+  .container.login {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+    padding: 4em 2em;
+    color: black;
+    border-radius: 1em;
+    border: 0.1em solid black;
+    background-color: ghostwhite;
+
+    .login-options {
+      display: flex;
+      flex-direction: column;
+
+      div {
+        font-size: 0.8em;
+      }
+
+      .btn {
+        --color-btn-secondary: ghostwhite;
+        margin: 0.5em 0.5em 1em;
+      }
+    }
+  }
+}

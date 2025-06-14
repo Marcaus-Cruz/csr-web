@@ -1,28 +1,22 @@
 header {
-  font-size: 3vmin;
-  border: 0.5vmin solid lime;
+  font-size: 0.8em;
   display: flex;
   justify-content: space-around;
   align-items: center;
+  background-color: var(--background);
+  border-bottom: 0.1em solid black;
 
   .btn.logo {
     position: relative;
-    width: 5vmax;
-    height: 5vmax;
+    width: 3.5em;
+    height: 3.5em;
     border: unset;
+    background: none;
 
     &:hover,
     &:focus {
       transform: scale(1.2);
       transition: transform 0.2s ease-in-out;
     }
-  }
-
-  nav button {
-    background: transparent;
-    border: 0.25vmin solid lime;
-    padding: 0.5em;
-    margin: auto 1em;
-    cursor: pointer;
   }
 }
