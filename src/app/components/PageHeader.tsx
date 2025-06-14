@@ -26,9 +26,9 @@ export default function PageHeader() {
   console.log({ pathname });
 
   function handleLoggedIn(pageName: string) {
-    if (isLoggedIn()) {
+    // if (isLoggedIn()) {
       router.push(`/${pageName}`);
-    }
+    // }
   }
 
   return (

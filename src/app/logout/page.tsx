@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import PocketBase from "pocketbase";
-
-const pb = new PocketBase("http://127.0.0.1:8090");
+import { useEffect } from "react";
+import pb from "../lib/pocketbase";
 
 export default function Logout() {
   const router = useRouter();
