@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import ExistingAccountButton from "../components/ExistingAccountButton";
 import "../home/homePage.css";
 import pb from "../lib/pocketbase";
 
@@ -46,6 +47,10 @@ export default function LoginPage() {
           <button className="btn login" type="submit">
             Log In
           </button>
+
+          {errorMsg && (
+            <ExistingAccountButton mightHaveExistingAccount={false} />
+          )}
         </div>
       </form>
     </div>
