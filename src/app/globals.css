@@ -5,6 +5,9 @@
 
   --color-btn-main: #87ac30;
   --color-btn-secondary: var(--background);
+
+  --header-height: 10vh;
+  --page-height: 90vh;
 }
 
 html {
@@ -25,7 +28,7 @@ body {
   width: 100vw;
   height: 100vh;
   z-index: -1;
-  background-image: url("../../public/logo-csr.png");
+  background-image: none;
   background-size: 10%;
   background-position: center;
   opacity: 0.25;
@@ -59,7 +62,14 @@ a {
   background-color: transparent;
 
   width: 100vw;
-  height: 90vh;
+  height: var(--page-height);
+
+  &.not-logged-in,
+  &.sign-up {
+    ~ .page-bg {
+      background-image: url("../../public/logo-csr.png");
+    }
+  }
 }
 
 .btn {

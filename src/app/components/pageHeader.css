@@ -5,6 +5,7 @@ header {
   align-items: center;
   background-color: var(--background);
   border-bottom: 0.1em solid black;
+  height: var(--header-height);
 
   .btn.logo {
     position: relative;

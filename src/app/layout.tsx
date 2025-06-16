@@ -28,8 +28,8 @@ export default function RootLayout({
       {/* <body className={`${geistSans.variable} ${geistMono.variable}`}> */}
       <body>
         <PageHeader />
-        <div className="page-bg" />
         {children}
+        <div className="page-bg" />
       </body>
     </html>
   );
