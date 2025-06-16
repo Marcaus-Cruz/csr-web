@@ -1,9 +1,11 @@
-.reviews-container {
-  flex: 1;
+.page.reviews-container {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-evenly;
-  border: 0.5vmin solid white;
+  justify-content: flex-start;
+  overflow-x: scroll;
+  max-height: 89vh;
+
+  background-color: var(--background);
 }
 
 .review-card {
@@ -13,7 +15,7 @@
   font-size: 2.5vmin;
   background-color: rgba(255, 255, 255, 0.5);
   padding: 1em;
-  border: unset;
+  border: 0.1em solid black;
   border-radius: 3vmin;
   z-index: 1;
   margin: 5vmin;

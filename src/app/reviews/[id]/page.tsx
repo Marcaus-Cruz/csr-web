@@ -4,6 +4,7 @@ import type {
   RatingType,
 } from "@/app/types/category.types";
 import ReviewHitListClient from "../../components/ReviewHitlistClient";
+import "./review.css";
 
 async function getReview(id: string) {
   console.log("[reviews][id][page][getReview]", { id });

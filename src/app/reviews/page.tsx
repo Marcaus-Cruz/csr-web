@@ -18,7 +18,7 @@ export default async function ReviewsPage() {
   console.log("[reviews][Page]", { reviews });
 
   return (
-    <div className="reviews-container">
+    <div className="page reviews-container">
       {reviews.map((review) => (
         <ReviewCard key={review.id} review={review} />
       ))}
