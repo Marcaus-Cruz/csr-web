@@ -360,7 +360,6 @@ export function RatingItem({
         value={rating.emoji}
         onChange={(e) => updateRatingField("emoji", e.target.value)}
         placeholder={CHICKEN_EMOJIS.full}
-        maxLength={1}
       />
     </div>
   );
