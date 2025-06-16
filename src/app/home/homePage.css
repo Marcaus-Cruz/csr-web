@@ -1,5 +1,5 @@
 .page.not-logged-in {
-  .container.home {
+  .user-container.home {
     .options {
       display: flex;
       flex-direction: column;

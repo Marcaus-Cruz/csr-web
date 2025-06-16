@@ -23,7 +23,7 @@ export default function HomePage() {
 
   return (
     <div className="page not-logged-in">
-      <div className="container home">
+      <div className="user-container home">
         <h2 className="login-prompt prompt">
           Get ready to streamline your reviews
         </h2>

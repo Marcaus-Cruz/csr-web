@@ -37,7 +37,7 @@ export default function SignupPage() {
 
   return (
     <div className="page sign-up">
-      <form className="container sign-up" onSubmit={handleSignup}>
+      <form className="user-container sign-up" onSubmit={handleSignup}>
         <h2 className="prompt">Create Account</h2>
         <div className="options">
           <input

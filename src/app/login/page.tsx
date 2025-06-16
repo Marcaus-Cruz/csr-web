@@ -24,7 +24,7 @@ export default function LoginPage() {
 
   return (
     <div className="page not-logged-in">
-      <form className="container login" onSubmit={handleLogin}>
+      <form className="user-container login" onSubmit={handleLogin}>
         <h2 className="prompt">Login</h2>
         <div className="options">
           <input
