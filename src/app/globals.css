@@ -98,11 +98,7 @@ a {
   }
 
   input {
-    font-size: 1em;
     margin: 0.5em auto;
-
-    padding: 0.25em;
-    border: 0.1em solid black;
   }
 
   .text {
@@ -112,4 +108,11 @@ a {
   .btn {
     --color-btn-secondary: ghostwhite;
   }
+}
+
+input {
+  font-size: 1em;
+
+  padding: 0.25em;
+  border: 0.1em solid black;
 }

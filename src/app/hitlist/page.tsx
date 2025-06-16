@@ -42,27 +42,21 @@ export default function HitListEdit() {
   return (
     <div className="hitlist edit">
       <h1>Hitlist</h1>
+      {!isAdding && (
+        <button
+          className="btn add"
+          onClick={() => {
+            setIsAdding(true);
+          }}
+        >
+          Add to hitlist
+        </button>
+      )}
       <ul>
-        {hitlist.map((placeToHit) => (
-          <div key={`item-${placeToHit.id}`} className="hitlist-item">
-            <div key={placeToHit.id}>{placeToHit.name}</div>
-            <button
-              className="btn"
-              onClick={async () => {
-                const newHitlist = hitlist.filter(
-                  (item) => item.id !== placeToHit.id
-                );
-                setHitlist(newHitlist);
-                await writeToHitlist(newHitlist);
-              }}
-            >
-              Mark as Hit
-            </button>
-          </div>
-        ))}
         {isAdding && (
           <div className="hitlist-item new">
             <input
+              name="new-hitlist-item"
               type="text"
               placeholder="Add to hitlist"
               className="typewriter"
@@ -93,17 +87,24 @@ export default function HitListEdit() {
             </button>
           </div>
         )}
+        {hitlist.map((placeToHit) => (
+          <div key={`item-${placeToHit.id}`} className="hitlist-item">
+            <div key={placeToHit.id}>{placeToHit.name}</div>
+            <button
+              className="btn"
+              onClick={async () => {
+                const newHitlist = hitlist.filter(
+                  (item) => item.id !== placeToHit.id
+                );
+                setHitlist(newHitlist);
+                await writeToHitlist(newHitlist);
+              }}
+            >
+              Mark as Hit
+            </button>
+          </div>
+        ))}
       </ul>
-      {!isAdding && (
-        <button
-          className="btn add"
-          onClick={() => {
-            setIsAdding(true);
-          }}
-        >
-          Add to hitlist
-        </button>
-      )}
     </div>
   );
 }
