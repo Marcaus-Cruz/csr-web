@@ -167,6 +167,7 @@ function CreateNewReview() {
         />
       </Container>
       <Container className="categories main">
+        <div className={"form-label"}>Categories ⇒</div>
         {categories.map((category) => (
           <CategoryItem
             key={category.id}
@@ -182,7 +183,7 @@ function CreateNewReview() {
             setCategories([...categories, newCategory]);
           }}
         >
-          +
+          New Category
         </button>
       </Container>
       <Container className="remarks">
@@ -253,7 +254,7 @@ export function CategoryItem({
       <input
         type="text"
         name={currentCategory.id}
-        className={`form-label${!currentCategory.text ? " empty" : ""}`}
+        className={`form-input text${!currentCategory.text ? " empty" : ""}`}
         value={currentCategory.text}
         placeholder="This Category will not be counted."
         onChange={(event) => updateCategoryText(event.target.value)}
@@ -269,7 +270,11 @@ export function CategoryItem({
       ))}
 
       {currentCategory.text && (
-        <button type="button" onClick={addNewRating}>
+        <button
+          type="button"
+          className="btn btn-add-rating"
+          onClick={addNewRating}
+        >
           Add Rating
         </button>
       )}
@@ -313,7 +318,7 @@ export function RatingItem({
         <input
           type="text"
           name={rating.text}
-          className={`form-label${!rating.text ? " empty" : ""}`}
+          className={`form-input text${!rating.text ? " empty" : ""}`}
           value={rating.text}
           placeholder="Rating will not be counted."
           onChange={(e) => updateRatingField("text", e.target.value)}
@@ -334,6 +339,7 @@ export function RatingItem({
           onChange={(e) =>
             updateRatingField("value", parseFloat(e.target.value))
           }
+          className={"form-input text"}
           placeholder="0-10"
           min={0}
           max={10}
@@ -349,7 +355,7 @@ export function RatingItem({
       </div>
       <input
         name={`${rating.id}-emoji`}
-        className="rating-item-child emoji"
+        className="form-input text rating-item-child emoji"
         type="text"
         value={rating.emoji}
         onChange={(e) => updateRatingField("emoji", e.target.value)}
@@ -401,6 +407,7 @@ function HashtagSection({
 
   return (
     <div className="container hashtags">
+      <div className="form-label">Hashtags ⇒</div>
       {!isAddingHashtag ? (
         <button
           type="button"
@@ -417,6 +424,7 @@ function HashtagSection({
             type="text"
             value={newHashtag}
             onChange={(e) => setNewHashtag(e.target.value)}
+            className="form-input text"
           />
           <button className="btn" onClick={() => saveHashtag()}>
             Done
@@ -427,8 +435,11 @@ function HashtagSection({
         return (
           <div key={hashtag} className="hashtag">
             #<input name={hashtag} type="text" value={hashtag} disabled />
-            <button className="btn" onClick={() => removeHashtag(hashtag)}>
-              -
+            <button
+              className="btn btn-remove"
+              onClick={() => removeHashtag(hashtag)}
+            >
+              Remove
             </button>
           </div>
         );
