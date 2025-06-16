@@ -151,8 +151,8 @@ function CategoryItem(categoryItemData: Readonly<CategoryType>) {
         </div>
       </div>
       <div className="category-ratings">
-        {categoryItemData.ratings.map(({ id, text, value }) => (
-          <RatingItem key={id} text={text} value={value} />
+        {categoryItemData.ratings.map(({ id, text, value, emoji }) => (
+          <RatingItem key={id} text={text} value={value} emoji={emoji} />
         ))}
       </div>
       <br />
