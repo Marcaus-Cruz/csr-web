@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import pb from "../lib/pocketbase";
+import pb from "../lib/pocketbaseClient";
 
 export default function Logout() {
   const router = useRouter();

@@ -1,5 +1,5 @@
 import type { Hitlist } from "../types/hitlist.types";
-import { COLLECTION_USER, getLocalHitlist, getLocalId } from './pocketbase';
+import { COLLECTION_USER, getLocalHitlist, getLocalId } from './pocketbaseClient';
 
 export const getUserHitlist = async (): Promise<Hitlist> => {
   console.log(`[hitlistUtils][getUserHitlist]`);

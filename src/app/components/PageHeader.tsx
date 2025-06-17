@@ -1,12 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter, usePathname } from "next/navigation";
-import { isLoggedIn } from "../lib/withAuth";
+import { usePathname, useRouter } from "next/navigation";
+import { clientIsLoggedIn } from "../lib/pocketbaseClient";
 import "./pageHeader.css";
 
-function getKeysToButtonText(): { [key: string]: string } {
-  return isLoggedIn()
+export default function PageHeader() {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  console.log({ pathname });
+
+  const buttonMap = clientIsLoggedIn()
     ? {
         reviews: "Reviews",
         create: "Create",
@@ -18,13 +23,6 @@ function getKeysToButtonText(): { [key: string]: string } {
         login: "Login",
         signup: "Sign Up",
       };
-}
-
-export default function PageHeader() {
-  const router = useRouter();
-  const pathname = usePathname();
-
-  console.log({ pathname });
 
   function handleLoggedIn(pageName: string) {
     router.push(`/${pageName}`);
@@ -36,7 +34,7 @@ export default function PageHeader() {
         <Image src="/logo-csr.png" alt="logo" fill={true} />
       </button>
       <nav className="nav">
-        {Object.entries(getKeysToButtonText()).map(([key, text]) => (
+        {Object.entries(buttonMap).map(([key, text]) => (
           <button
             className="btn standard"
             key={key}

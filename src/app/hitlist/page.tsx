@@ -8,7 +8,7 @@ import {
   getLocalHitlist,
   getLocalId,
   setLocalHitlist,
-} from "../lib/pocketbase";
+} from "../lib/pocketbaseClient";
 import { isLoggedIn } from "../lib/withAuth";
 import type { Hit, Hitlist } from "../types/hitlist.types";
 import "./hitlist.css";

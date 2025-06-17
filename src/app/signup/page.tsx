@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import ExistingAccountButton from "../components/ExistingAccountButton";
-import pb from "../lib/pocketbase";
+import pb from "../lib/pocketbaseClient";
 
 export default function SignupPage() {
   const router = useRouter();

@@ -1,10 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import PocketBase from "pocketbase";
 import { useEffect } from "react";
-
-const pb = new PocketBase("http://127.0.0.1:8090");
+import { clientIsLoggedIn } from "./pocketbaseClient";
 
 export const withAuth = (Component: React.ComponentType) => {
   const WithAuthComponent = (props: Record<string, unknown>) => {
@@ -26,6 +24,4 @@ export const withAuth = (Component: React.ComponentType) => {
   return WithAuthComponent;
 };
 
-export const isLoggedIn = () => {
-  return pb.authStore.isValid;
-};
+export const isLoggedIn = () => clientIsLoggedIn();

@@ -9,7 +9,7 @@ import { ValueOf } from "next/dist/shared/lib/constants";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { v4 as uuid } from "uuid";
-import pb from "../lib/pocketbase";
+import pb from "../lib/pocketbaseClient";
 import { withAuth } from "../lib/withAuth";
 import { CHICKEN_EMOJIS, CONSTANT_HASHTAGS } from "../reviews/[id]/page";
 import "./createPage.css";
