@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "pocketbase": "pocketbase serve",
+    "pocketbase": ".\\pb\\pocketbase.exe serve",
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
@@ -14,7 +14,8 @@
     "pocketbase": "^0.26.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "zustand": "^5.0.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
