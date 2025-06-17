@@ -9,4 +9,5 @@ RUN chmod +x /app/pocketbase
 
 EXPOSE 10000
 
-CMD ["./pocketbase", "serve", "--http", "0.0.0.0:10000", "--cors", "*"]
+ENV CORS_ORIGINS=*
+CMD ["./pocketbase", "serve", "--http", "0.0.0.0:10000"]
