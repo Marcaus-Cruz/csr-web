@@ -32,6 +32,13 @@ export default function HomePage() {
             Sign Up
           </button>
           <ExistingAccountButton mightHaveExistingAccount={true} />
+
+          <div className="options-text text">
+            Just came here to see the reviews?
+          </div>
+          <button className="btn btn-reviews" onClick={handleClick("/reviews")}>
+            See Reviews
+          </button>
         </div>
       </div>
     </div>
