@@ -4,8 +4,10 @@ services:
     env: docker
     plan: free
     buildCommand: ""
-    startCommand: "./pocketbase serve --http 0.0.0.0:10000 --cors '*'"
+    startCommand: "./pocketbase serve --http 0.0.0.0:10000"
     dockerfilePath: Dockerfile
     envVars:
       - key: PORT
         value: 10000
+      - key: CORS_ORIGINS
+        value: "*"
