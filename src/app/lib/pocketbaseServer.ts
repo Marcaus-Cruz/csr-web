@@ -7,7 +7,7 @@ export const getServerPBUser = async () => {
 
   if (!authCookie) return null;
 
-  const pb = new PocketBase("http://127.0.0.1:8090");
+  const pb = new PocketBase("https://csr-web-pb.onrender.com");
   pb.authStore.loadFromCookie(`pb_auth=${authCookie.value}`);
 
   try {

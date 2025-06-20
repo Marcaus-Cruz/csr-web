@@ -2,8 +2,30 @@ import PocketBase from "pocketbase";
 import { createStore } from "zustand";
 import type { Hitlist } from "../types/hitlist.types";
 
+const pb = new PocketBase("https://csr-web-pb.onrender.com");
 
-const pb = new PocketBase("http://127.0.0.1:8090");
+// if (typeof window !== "undefined") {
+//   pb.authStore.loadFromCookie();
+// }
+
+// ✅ Restore from localStorage
+if (typeof window !== 'undefined') {
+  const stored = localStorage.getItem('pb_auth');
+  if (stored) {
+    try {
+      pb.authStore.loadFromCookie(JSON.parse(stored));
+    } catch {
+      pb.authStore.clear();
+      localStorage.removeItem('pb_auth');
+    }
+  }
+
+  // ✅ Keep localStorage in sync on changes
+  pb.authStore.onChange(() => {
+    const data = pb.authStore.exportToCookie();
+    localStorage.setItem('pb_auth', JSON.stringify(data));
+  });
+}
 
 // --- Zustand store for reactive state ---
 interface PBState {
@@ -18,10 +40,8 @@ export const usePBStore = createStore<PBState>((set) => ({
   isLoggedIn: pb.authStore.isValid,
   user: pb.authStore.record,
   token: pb.authStore.token,
-  setUser: (user, token) =>
-    set({ user, token, isLoggedIn: true }),
-  clearUser: () =>
-    set({ user: null, token: "", isLoggedIn: false }),
+  setUser: (user, token) => set({ user, token, isLoggedIn: true }),
+  clearUser: () => set({ user: null, token: "", isLoggedIn: false }),
 }));
 
 // --- Auth listener to keep store synced ---
@@ -51,7 +71,6 @@ export const setLocalHitlist = (newHitlist: Hitlist): void => {
     pb.authStore.record.hitlist = newHitlist;
   }
 };
-
 
 export const clientIsLoggedIn = () => pb.authStore.isValid;
 

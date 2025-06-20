@@ -10,7 +10,7 @@ async function getReview(id: string) {
   console.log("[reviews][id][page][getReview]", { id });
 
   const res = await fetch(
-    `http://127.0.0.1:8090/api/collections/reviews/records/${id}`,
+    `https://csr-web-pb.onrender.com/api/collections/reviews/records/${id}`,
     { next: { revalidate: 10 } }
   );
 

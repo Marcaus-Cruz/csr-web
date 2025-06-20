@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "pocketbase": "./pocketbase serve",
+    "local-pocketbase": "pocketbase serve",
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",

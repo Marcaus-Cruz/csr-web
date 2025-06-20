@@ -3,7 +3,7 @@ import "./reviews.css";
 
 async function getReviews() {
   const res = await fetch(
-    "http://127.0.0.1:8090/api/collections/reviews/records?page=1&perPage=30",
+    "https://csr-web-pb.onrender.com/api/collections/reviews/records?page=1&perPage=30",
     {
       cache: "no-store",
     }

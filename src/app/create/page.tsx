@@ -93,7 +93,7 @@ function CreateNewReview() {
     });
 
     const response = await fetch(
-      "http://127.0.0.1:8090/api/collections/reviews/records",
+      "https://csr-web-pb.onrender.com/api/collections/reviews/records",
       {
         method: "POST",
         headers: {
