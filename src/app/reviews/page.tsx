@@ -9,7 +9,7 @@ async function getReviews() {
     }
   );
   const data = await res.json();
-  return data?.items as any[];
+  return (data?.items || []) as any[];
 }
 
 export default async function ReviewsPage() {
