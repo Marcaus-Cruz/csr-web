@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { clientIsLoggedIn } from "../lib/pocketbaseClient";
+import pb, { clientIsLoggedIn } from "../lib/pocketbaseClient";
 import "./pageHeader.css";
 
 export default function PageHeader() {
@@ -10,6 +10,7 @@ export default function PageHeader() {
   const pathname = usePathname();
 
   console.log({ pathname });
+  console.warn(pb.authStore)
 
   const buttonMap = clientIsLoggedIn()
     ? {
