@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { clientIsLoggedIn } from "../lib/pocketbaseClient";
+import pb, { clientIsLoggedIn } from "../lib/pocketbaseClient";
 import "./pageHeader.css";
 
 export default function PageHeader() {
@@ -10,6 +10,7 @@ export default function PageHeader() {
   const pathname = usePathname();
 
   console.log({ pathname });
+  console.warn(pb.authStore);
 
   const buttonMap = clientIsLoggedIn()
     ? {
@@ -24,13 +25,9 @@ export default function PageHeader() {
         signup: "Sign Up",
       };
 
-  function handleLoggedIn(pageName: string) {
-    router.push(`/${pageName}`);
-  }
-
   return (
     <header>
-      <button className="btn logo" onClick={() => handleLoggedIn("home")}>
+      <button className="btn logo" onClick={() => router.push("home")}>
         <Image src="/logo-csr.png" alt="logo" fill={true} />
       </button>
       <nav className="nav">
@@ -38,7 +35,7 @@ export default function PageHeader() {
           <button
             className="btn standard"
             key={key}
-            onClick={() => handleLoggedIn(key)}
+            onClick={() => router.push(`/${key}`)}
           >
             {text}
           </button>
