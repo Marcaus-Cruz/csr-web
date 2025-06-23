@@ -11,6 +11,8 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.835.0",
+    "@aws-sdk/lib-dynamodb": "^3.835.0",
     "next": "15.3.2",
     "pocketbase": "^0.26.0",
     "react": "^19.0.0",
