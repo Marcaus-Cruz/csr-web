@@ -10,7 +10,7 @@ export default function PageHeader() {
   const pathname = usePathname();
 
   console.log({ pathname });
-  console.warn(pb.authStore);
+  // console.warn(pb.authStore);
 
   const buttonMap = clientIsLoggedIn()
     ? {

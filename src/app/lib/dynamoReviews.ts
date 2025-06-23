@@ -2,9 +2,9 @@ import { DYNAMO_DB } from "./dynamoClient";
 import { PutCommand, GetCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import type { CategoryType } from "../types/category.types";
 
-const TABLE_NAME = "reviews";
+const TABLE_NAME = "csr-reviews";
 
-export async function createReview(review: {
+export interface DynamoReview {
   id: string;
   owner: string;
   restName: string;
@@ -17,7 +17,9 @@ export async function createReview(review: {
   altRating: number;
   remarks: string;
   hashtags: string[];
-}) {
+}
+
+export async function createReview(review: DynamoReview): Promise<void> {
   const command = new PutCommand({
     TableName: TABLE_NAME,
     Item: review,

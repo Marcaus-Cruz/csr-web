@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import ExistingAccountButton from "../components/ExistingAccountButton";
 import { isLoggedIn } from "../lib/withAuth";
 import "./homePage.css";
+import { signIn } from "next-auth/react";
 
 // TODO: New components - (containers), .page on layout container, options, error message
 
@@ -32,6 +33,7 @@ export default function HomePage() {
             Sign Up
           </button>
           <ExistingAccountButton mightHaveExistingAccount={true} />
+          <button onClick={() => signIn("google")}>GOOGLE</button>
 
           <div className="options-text text">
             Just came here to see the reviews?
