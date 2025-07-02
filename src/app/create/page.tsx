@@ -9,7 +9,6 @@ import { ValueOf } from "next/dist/shared/lib/constants";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { v4 as uuid } from "uuid";
-import pb from "../lib/pocketbaseClient";
 import { withAuth } from "../lib/withAuth";
 import { CHICKEN_EMOJIS, CONSTANT_HASHTAGS } from "../reviews/[id]/page";
 import "./createPage.css";
@@ -75,10 +74,13 @@ function CreateNewReview() {
     // * Append hashtags
     const hashtags = [...existingHashTags, ...CONSTANT_HASHTAGS];
 
-    const owner = pb.authStore.record;
+    // TODO: Put review
+    const owner = "default";
+    const id = uuid();
 
     console.log(`[CreateReview][onSubmit]`, {
       owner,
+      id,
       restName,
       sandName,
       intro,
@@ -92,30 +94,6 @@ function CreateNewReview() {
       altRating,
     });
 
-    const response = await fetch(
-      "http://127.0.0.1:8090/api/collections/reviews/records",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${pb.authStore.token}`,
-        },
-        body: JSON.stringify({
-          owner: owner?.id,
-          restName,
-          sandName,
-          intro,
-          categories: filteredCategories,
-          mainCategories,
-          extraCategories,
-          overallRating,
-          altRating,
-          remarks,
-          hashtags,
-        }),
-      }
-    );
-
     setRestName("");
     setSandName("");
     setIntro("");
@@ -123,9 +101,7 @@ function CreateNewReview() {
     setRemarks("");
     setExistingHashTags([]);
 
-    const data = await response.json();
-
-    router.push(`/reviews/${data.id}`);
+    router.push(`/reviews/${id}`);
   }
 
   return (

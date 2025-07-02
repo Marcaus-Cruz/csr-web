@@ -2,13 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import pb from "../lib/pocketbaseClient";
 
 export default function Logout() {
   const router = useRouter();
 
   useEffect(() => {
-    pb.authStore.clear(); // Clears authentication data
+    // TODO: logout of google
     router.push("/home"); // Redirect to login page after logout
   }, []);
 

@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import ExistingAccountButton from "../components/ExistingAccountButton";
 import "../home/homePage.css";
-import pb from "../lib/pocketbaseClient";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -15,7 +14,6 @@ export default function LoginPage() {
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
-      await pb.collection("users").authWithPassword(email, password);
       router.push("/reviews"); // Change path as needed
     } catch (err: any) {
       setErrorMsg("Login failed: " + (err?.message || ""));

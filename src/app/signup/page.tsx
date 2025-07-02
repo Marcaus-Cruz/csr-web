@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import ExistingAccountButton from "../components/ExistingAccountButton";
-import pb from "../lib/pocketbaseClient";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -21,13 +20,7 @@ export default function SignupPage() {
     }
 
     try {
-      const newUser = await pb.collection("users").create({
-        email,
-        password,
-        passwordConfirm: confirmPassword,
-      });
-
-      await pb.collection("users").authWithPassword(email, password);
+      // TODO: Add user to Dynamodb
 
       router.push("/reviews");
     } catch (error: any) {
@@ -65,7 +58,9 @@ export default function SignupPage() {
           <button className="btn btn-sign-up" type="submit">
             Sign Up
           </button>
-          {errorMsg && <ExistingAccountButton mightHaveExistingAccount={true} />}
+          {errorMsg && (
+            <ExistingAccountButton mightHaveExistingAccount={true} />
+          )}
         </div>
       </form>
     </div>

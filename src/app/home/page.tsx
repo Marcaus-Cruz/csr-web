@@ -1,11 +1,11 @@
 "use client";
 
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import ExistingAccountButton from "../components/ExistingAccountButton";
 import { isLoggedIn } from "../lib/withAuth";
 import "./homePage.css";
-import { signIn } from "next-auth/react";
 
 // TODO: New components - (containers), .page on layout container, options, error message
 

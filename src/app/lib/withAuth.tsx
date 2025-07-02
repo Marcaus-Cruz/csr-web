@@ -2,14 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { clientIsLoggedIn } from "./pocketbaseClient";
+
+export const isLoggedIn = () => false;
 
 export const withAuth = (Component: React.ComponentType) => {
   const WithAuthComponent = (props: Record<string, unknown>) => {
     const router = useRouter();
 
     useEffect(() => {
-      if (!isLoggedIn()) {
+      if (isLoggedIn()) {
         router.push("/home"); // Redirect to login if not authenticated
       }
     }, [router]);
@@ -23,5 +24,3 @@ export const withAuth = (Component: React.ComponentType) => {
 
   return WithAuthComponent;
 };
-
-export const isLoggedIn = () => clientIsLoggedIn();

@@ -2,18 +2,11 @@ import ReviewCard from "./ReviewCard";
 import "./reviews.css";
 
 async function getReviews() {
-  const res = await fetch(
-    "http://127.0.0.1:8090/api/collections/reviews/records?page=1&perPage=30",
-    {
-      cache: "no-store",
-    }
-  );
-  const data = await res.json();
-  return (data?.items || []) as any[];
+  return [];
 }
 
 export default async function ReviewsPage() {
-  const reviews = await getReviews() || [];
+  const reviews = (await getReviews()) || [];
 
   console.log("[reviews][Page]", { reviews });
 

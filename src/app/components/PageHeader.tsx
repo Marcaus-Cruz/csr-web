@@ -1,18 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
-import pb, { clientIsLoggedIn } from "../lib/pocketbaseClient";
+import { useRouter } from "next/navigation";
+import { isLoggedIn } from "../lib/withAuth";
 import "./pageHeader.css";
 
 export default function PageHeader() {
   const router = useRouter();
-  const pathname = usePathname();
 
-  console.log({ pathname });
-  // console.warn(pb.authStore);
 
-  const buttonMap = clientIsLoggedIn()
+  const buttonMap = isLoggedIn()
     ? {
         reviews: "Reviews",
         create: "Create",

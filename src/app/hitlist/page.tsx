@@ -3,12 +3,6 @@
 import { useState } from "react";
 import { v4 as uuid } from "uuid";
 import { removeDuplicateHits } from "../lib/hitlistUtils";
-import {
-  COLLECTION_USER,
-  getLocalHitlist,
-  getLocalId,
-  setLocalHitlist,
-} from "../lib/pocketbaseClient";
 import { isLoggedIn } from "../lib/withAuth";
 import type { Hit, Hitlist } from "../types/hitlist.types";
 import "./hitlist.css";
@@ -17,12 +11,12 @@ async function writeToHitlist(statefulHitlist: Hitlist) {
   console.log(`[Hitlist][${writeToHitlist.name}]`, { statefulHitlist });
 
   if (isLoggedIn()) {
-    const userId = getLocalId();
+    // const userId = getLocalId();
     const updatedHitlist = removeDuplicateHits(statefulHitlist);
 
-    return await COLLECTION_USER.update(userId, {
-      hitlist: updatedHitlist,
-    });
+    // return await COLLECTION_USER.update(userId, {
+    //   hitlist: updatedHitlist,
+    // });
   } else {
     console.warn("No user is logged in...");
     return Promise.resolve();
@@ -30,7 +24,8 @@ async function writeToHitlist(statefulHitlist: Hitlist) {
 }
 
 export default function HitListEdit() {
-  const ownerHitlist = removeDuplicateHits(getLocalHitlist());
+  // const ownerHitlist = removeDuplicateHits(getLocalHitlist());
+  const ownerHitlist = []
 
   const [hitlist, setHitlist] = useState<Hitlist>(ownerHitlist);
   const [isAdding, setIsAdding] = useState(false);
@@ -75,7 +70,7 @@ export default function HitListEdit() {
                   const newHitlist = [...hitlist, newHitlistItem];
 
                   setHitlist(newHitlist);
-                  setLocalHitlist(newHitlist);
+                  // setLocalHitlist(newHitlist);
 
                   await writeToHitlist(newHitlist);
                 }
