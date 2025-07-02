@@ -3,7 +3,6 @@
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import ExistingAccountButton from "../components/ExistingAccountButton";
 import { isLoggedIn } from "../lib/withAuth";
 import "./homePage.css";
 
@@ -29,11 +28,9 @@ export default function HomePage() {
           Get ready to streamline your reviews
         </h2>
         <div className="options">
-          <button className="btn btn-signup" onClick={handleClick("/signup")}>
-            Sign Up
+          <button className="btn btn-signup" onClick={() => signIn("google")}>
+            Continue with Google
           </button>
-          <ExistingAccountButton mightHaveExistingAccount={true} />
-          <button onClick={() => signIn("google")}>GOOGLE</button>
 
           <div className="options-text text">
             Just came here to see the reviews?

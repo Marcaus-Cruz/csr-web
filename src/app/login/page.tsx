@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import ExistingAccountButton from "../components/ExistingAccountButton";
 import "../home/homePage.css";
 
 export default function LoginPage() {
@@ -46,9 +45,7 @@ export default function LoginPage() {
             Log In
           </button>
 
-          {errorMsg && (
-            <ExistingAccountButton mightHaveExistingAccount={false} />
-          )}
+          {errorMsg}
         </div>
       </form>
     </div>

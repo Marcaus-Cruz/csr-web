@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import ExistingAccountButton from "../components/ExistingAccountButton";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -58,9 +57,7 @@ export default function SignupPage() {
           <button className="btn btn-sign-up" type="submit">
             Sign Up
           </button>
-          {errorMsg && (
-            <ExistingAccountButton mightHaveExistingAccount={true} />
-          )}
+          {errorMsg}
         </div>
       </form>
     </div>
