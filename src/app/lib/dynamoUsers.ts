@@ -1,5 +1,6 @@
+import { GetCommand, PutCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import type { Hitlist } from "../types/hitlist.types";
 import { DYNAMO_DB } from "./dynamoClient";
-import { PutCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
 
 const TABLE_NAME = "csr-users";
 
@@ -8,7 +9,7 @@ export interface DynamoUser {
   email: string;
   created: string;
   updated: string;
-  hitlist?: { id: string }[];
+  hitlist?: Hitlist;
 }
 
 export async function createUser(userData: DynamoUser) {
@@ -36,4 +37,20 @@ export async function createUserIfNoExist(userData: DynamoUser) {
   if (!existing) {
     await createUser(userData);
   }
+}
+
+export async function updateUserHitlist(userId: string, newHitlist: Hitlist) {
+  const updatedAt = new Date().toISOString();
+
+  await DYNAMO_DB.send(
+    new UpdateCommand({
+      TableName: TABLE_NAME,
+      Key: { id: userId },
+      UpdateExpression: "SET hitlist = :hitlist, updated = :updated",
+      ExpressionAttributeValues: {
+        ":hitlist": newHitlist,
+        ":updated": updatedAt,
+      },
+    })
+  );
 }
