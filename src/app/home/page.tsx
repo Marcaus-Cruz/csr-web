@@ -2,27 +2,13 @@
 
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { isLoggedIn } from "../lib/withAuth";
 import "./homePage.css";
-
-// TODO: New components - (containers), .page on layout container, options, error message
 
 export default function HomePage() {
   const router = useRouter();
 
-  useEffect(() => {
-    if (isLoggedIn()) {
-      router.push("/reviews");
-    }
-  }, [router]);
-
-  const handleClick = (route: string) => () => {
-    router.push(route);
-  };
-
   return (
-    <div className="page not-logged-in">
+    <div className="page home">
       <div className="user-container home">
         <h2 className="login-prompt prompt">
           Get ready to streamline your reviews
@@ -35,7 +21,10 @@ export default function HomePage() {
           <div className="options-text text">
             Just came here to see the reviews?
           </div>
-          <button className="btn btn-reviews" onClick={handleClick("/reviews")}>
+          <button
+            className="btn btn-reviews"
+            onClick={() => router.push("/reviews")}
+          >
             See Reviews
           </button>
         </div>

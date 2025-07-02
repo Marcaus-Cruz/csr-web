@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ClientSessionProvider from "./components/ClientSessionProvider";
 import PageHeader from "./components/PageHeader";
 import "./globals.css";
 
@@ -15,10 +16,11 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body>
-
-        <PageHeader />
-        {children}
-        <div className="page-bg" />
+        <ClientSessionProvider>
+          <PageHeader />
+          {children}
+          <div className="page-bg" />
+        </ClientSessionProvider>
       </body>
     </html>
   );

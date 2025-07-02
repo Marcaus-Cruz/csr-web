@@ -64,7 +64,7 @@ a {
   width: 100vw;
   height: var(--page-height);
 
-  &.not-logged-in,
+  &.home,
   &.sign-up {
     ~ .page-bg {
       background-image: url("../../public/logo-csr.png");

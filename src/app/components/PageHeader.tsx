@@ -1,15 +1,17 @@
 "use client";
 
+import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { isLoggedIn } from "../lib/withAuth";
 import "./pageHeader.css";
 
 export default function PageHeader() {
   const router = useRouter();
+  const session = useSession();
 
+  const isAuthenticated = session.status === "authenticated";
 
-  const buttonMap = isLoggedIn()
+  const buttonMap = isAuthenticated
     ? {
         reviews: "Reviews",
         create: "Create",
@@ -32,7 +34,9 @@ export default function PageHeader() {
           <button
             className="btn standard"
             key={key}
-            onClick={() => router.push(`/${key}`)}
+            onClick={() =>
+              key === "logout" ? signOut() : router.push(`/${key}`)
+            }
           >
             {text}
           </button>

@@ -2,8 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { useSession } from "next-auth/react";
 
-export const isLoggedIn = () => false;
+export const isLoggedIn = () => useSession().status === "authenticated";
 
 export const withAuth = (Component: React.ComponentType) => {
   const WithAuthComponent = (props: Record<string, unknown>) => {

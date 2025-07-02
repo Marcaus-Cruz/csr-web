@@ -40,7 +40,7 @@ export async function getReviewById(id: string) {
 
 export async function getReviewsByOwnerId(ownerId: string) {
   const command = new QueryCommand({
-    TableName: "csr-reviews", // match your actual table name
+    TableName: TABLE_NAME,
     IndexName: "ownerId-index", // the index you created
     KeyConditionExpression: "owner = :ownerId",
     ExpressionAttributeValues: {

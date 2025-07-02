@@ -1,7 +1,14 @@
+import { useSession } from "next-auth/react";
 import type { Hitlist } from "../types/hitlist.types";
+import { getUserById } from "./dynamoUsers";
 
 export const getUserHitlist = async (): Promise<Hitlist> => {
   console.log(`[hitlistUtils][getUserHitlist]`);
+
+  const session = useSession();
+  console.log({ session });
+
+  const user = await getUserById();
 
   // const localHitlist = getLocalHitlist();
   // const userId = getLocalId();
