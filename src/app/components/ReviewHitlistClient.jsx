@@ -3,12 +3,19 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 
-export default function HitlistClient() {
-  const [hitlist, setHitlist] = useState([]);
+export default function HitlistClient({ hitlist: propHitlist }) {
+  const [hitlist, setHitlist] = useState(propHitlist || []);
   const { data: session } = useSession();
   const user = session?.user;
 
   useEffect(() => {
+    // If hitlist is provided as prop, use it
+    if (propHitlist) {
+      setHitlist(propHitlist);
+      return;
+    }
+
+    // Otherwise, fetch user's own hitlist
     if (!user?.id) return;
     
     (async () => {
@@ -24,7 +31,7 @@ export default function HitlistClient() {
         console.error("Failed to load hitlist:", error);
       }
     })();
-  }, [user?.id]);
+  }, [user?.id, propHitlist]);
 
   return (
     <div className="hitlist">

@@ -1,5 +1,5 @@
 import { DYNAMO_DB } from "./dynamoClient";
-import { PutCommand, GetCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { PutCommand, GetCommand, QueryCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
 import type { CategoryType } from "../types/category.types";
 
 const TABLE_NAME = "csr-reviews";
@@ -38,13 +38,25 @@ export async function getReviewById(id: string) {
   return result.Item;
 }
 
-export async function getReviewsByOwnerId(ownerId: string) {
-  const command = new QueryCommand({
+export async function getAllReviews() {
+  const command = new ScanCommand({
     TableName: TABLE_NAME,
-    IndexName: "ownerId-index", // the index you created
-    KeyConditionExpression: "owner = :ownerId",
+  });
+
+  const result = await DYNAMO_DB.send(command);
+  return result.Items;
+}
+
+export async function getReviewsByOwner(owner: string) {
+  // Use scan with filter instead of query since index might not be configured correctly
+  const command = new ScanCommand({
+    TableName: TABLE_NAME,
+    FilterExpression: "#owner = :owner",
+    ExpressionAttributeNames: {
+      "#owner": "owner"
+    },
     ExpressionAttributeValues: {
-      ":ownerId": ownerId,
+      ":owner": owner,
     },
   });
 

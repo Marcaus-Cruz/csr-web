@@ -5,6 +5,7 @@ import type {
 } from "@/app/types/category.types";
 import ReviewHitListClient from "../../components/ReviewHitlistClient";
 import { getReviewById } from "../../lib/dynamoReviews";
+import { getUserById } from "../../lib/dynamoUsers";
 import "./review.css";
 
 async function getReview(id: string) {
@@ -12,7 +13,18 @@ async function getReview(id: string) {
   
   try {
     const review = await getReviewById(id);
-    return (review || {}) as DB_REVIEW;
+    if (!review) {
+      return {} as DB_REVIEW;
+    }
+
+    // Get the owner's hitlist
+    const owner = await getUserById(review.owner);
+    const reviewWithHitlist = {
+      ...review,
+      ownerHitlist: owner?.hitlist || []
+    };
+
+    return reviewWithHitlist as DB_REVIEW;
   } catch (error) {
     console.error("Error fetching review:", error);
     return {} as DB_REVIEW;
@@ -32,7 +44,7 @@ export default async function ReviewPage({
 
   console.warn({ review });
 
-  const { restName, sandName, intro, remarks, hashtags } = review;
+  const { restName, sandName, intro, remarks, hashtags, ownerHitlist } = review;
 
   return (
     <div className="review">
@@ -48,7 +60,7 @@ export default async function ReviewPage({
         <br />
         <div className="text remarks">{remarks}</div>
         <br />
-        <ReviewHitListClient />
+        <ReviewHitListClient hitlist={ownerHitlist} />
         <br />
         {Hashtags(hashtags)}
       </div>
