@@ -1,26 +1,20 @@
-import { useSession } from "next-auth/react";
 import type { Hitlist } from "../types/hitlist.types";
 import { getUserById } from "./dynamoUsers";
 
-export const getUserHitlist = async (): Promise<Hitlist> => {
-  console.log(`[hitlistUtils][getUserHitlist]`);
+export const getUserHitlist = async (userId: string): Promise<Hitlist> => {
+  console.log(`[hitlistUtils][getUserHitlist]`, { userId });
 
-  const session = useSession();
-  console.log({ session });
+  if (!userId) {
+    return [];
+  }
 
-  const user = await getUserById();
-
-  // const localHitlist = getLocalHitlist();
-  // const userId = getLocalId();
-
-  // if (userId) {
-  //   const user = await COLLECTION_USER.getOne(userId);
-  //   const dbHitlist = user.hitlist;
-
-  //   return removeDuplicateHits([...localHitlist, ...dbHitlist]);
-  // }
-
-  // return removeDuplicateHits(localHitlist);
+  try {
+    const user = await getUserById(userId);
+    return user?.hitlist || [];
+  } catch (error) {
+    console.error("Error getting user hitlist:", error);
+    return [];
+  }
 };
 
 export const removeDuplicateHits = (hitlist: Hitlist) =>

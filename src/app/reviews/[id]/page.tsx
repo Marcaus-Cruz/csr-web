@@ -4,11 +4,19 @@ import type {
   RatingType,
 } from "@/app/types/category.types";
 import ReviewHitListClient from "../../components/ReviewHitlistClient";
+import { getReviewById } from "../../lib/dynamoReviews";
 import "./review.css";
 
 async function getReview(id: string) {
   console.log("[reviews][id][page][getReview]", { id });
-  return {} as DB_REVIEW;
+  
+  try {
+    const review = await getReviewById(id);
+    return (review || {}) as DB_REVIEW;
+  } catch (error) {
+    console.error("Error fetching review:", error);
+    return {} as DB_REVIEW;
+  }
 }
 
 export default async function ReviewPage({

@@ -10,6 +10,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { v4 as uuid } from "uuid";
 import { withAuth } from "../lib/withAuth";
+import type { DynamoReview } from "../lib/dynamoReviews";
+import { useSession } from "next-auth/react";
+import type { CSRUser } from "../api/auth/[...nextauth]/options";
 import { CHICKEN_EMOJIS, CONSTANT_HASHTAGS } from "../reviews/[id]/page";
 import "./createPage.css";
 
@@ -23,85 +26,111 @@ function CreateNewReview() {
   );
   const [remarks, setRemarks] = useState("");
   const [existingHashTags, setExistingHashTags] = useState<string[]>([]); // ...Constant Hashtags
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const router = useRouter();
+  const { data: session } = useSession();
+  const user = session?.user as CSRUser;
 
-  async function create(event) {
+  async function create(event: React.FormEvent) {
     event.preventDefault();
 
-    [restName, sandName, intro, remarks].forEach((text) => {
-      if (!text) {
-        throw new Error(`[CreateReview][onSubmit] - text is empty`);
-      }
-    });
+    if (isSubmitting || !user?.id) return;
 
-    existingHashTags.forEach((tag) => {
-      if (!tag) {
-        throw new Error(`[CreateReview][onSubmit] - tag is empty`);
-      }
-    });
+    setIsSubmitting(true);
 
-    // * Set values for each category
-    const filteredCategories = categories
-      .filter(
-        ({ text: categoryName, ratings }) =>
-          categoryName.trim() && ratings.length > 0
-      )
-      .map((category) => {
-        const filteredRatings = category.ratings.filter((rating) =>
-          rating.text.trim()
-        );
-
-        return {
-          ...category,
-          ratings: filteredRatings,
-          value: getAverageValue(filteredRatings),
-        };
+    try {
+      // Validate required fields
+      [restName, sandName, intro, remarks].forEach((text) => {
+        if (!text.trim()) {
+          throw new Error("All text fields are required");
+        }
       });
 
-    // * Separate categories. Omit any that are left empty
-    const mainCategories = filteredCategories.filter((category) =>
-      BASE_CATEGORIES_IDS.includes(category.id)
-    );
-    const extraCategories = filteredCategories.filter(
-      (category) => !BASE_CATEGORIES_IDS.includes(category.id)
-    );
+      existingHashTags.forEach((tag) => {
+        if (!tag.trim()) {
+          throw new Error("All hashtags must have content");
+        }
+      });
 
-    // * Calculate overall rating
-    const overallRating = getAverageValue(mainCategories);
-    const altRating = getAverageValue(filteredCategories);
+      // * Set values for each category
+      const filteredCategories = categories
+        .filter(
+          ({ text: categoryName, ratings }) =>
+            categoryName.trim() && ratings.length > 0
+        )
+        .map((category) => {
+          const filteredRatings = category.ratings.filter((rating) =>
+            rating.text.trim()
+          );
 
-    // * Append hashtags
-    const hashtags = [...existingHashTags, ...CONSTANT_HASHTAGS];
+          return {
+            ...category,
+            ratings: filteredRatings,
+            value: getAverageValue(filteredRatings),
+          };
+        });
 
-    // TODO: Put review
-    const owner = "default";
-    const id = uuid();
+      // * Separate categories. Omit any that are left empty
+      const mainCategories = filteredCategories.filter((category) =>
+        BASE_CATEGORIES_IDS.includes(category.id)
+      );
+      const extraCategories = filteredCategories.filter(
+        (category) => !BASE_CATEGORIES_IDS.includes(category.id)
+      );
 
-    console.log(`[CreateReview][onSubmit]`, {
-      owner,
-      id,
-      restName,
-      sandName,
-      intro,
-      categories,
-      filteredCategories,
-      mainCategories,
-      extraCategories,
-      remarks,
-      hashtags,
-      overallRating,
-      altRating,
-    });
+      // * Calculate overall rating
+      const overallRating = getAverageValue(mainCategories);
+      const altRating = getAverageValue(filteredCategories);
 
-    setRestName("");
-    setSandName("");
-    setIntro("");
-    setCategories(BASE_CATEGORIES);
-    setRemarks("");
-    setExistingHashTags([]);
+      // * Append hashtags
+      const hashtags = [...existingHashTags, ...CONSTANT_HASHTAGS];
 
-    router.push(`/reviews/${id}`);
+      const id = uuid();
+      const reviewData: DynamoReview = {
+        id,
+        owner: user.id,
+        restName: restName.trim(),
+        sandName: sandName.trim(),
+        intro: intro.trim(),
+        categories: filteredCategories,
+        mainCategories,
+        extraCategories,
+        overallRating,
+        altRating,
+        remarks: remarks.trim(),
+        hashtags,
+      };
+
+      // Submit to API
+      const response = await fetch("/api/create-review", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(reviewData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create review");
+      }
+
+      // Clear form
+      setRestName("");
+      setSandName("");
+      setIntro("");
+      setCategories(BASE_CATEGORIES);
+      setRemarks("");
+      setExistingHashTags([]);
+
+      // Redirect to the new review
+      router.push(`/reviews/${id}`);
+    } catch (error) {
+      console.error("Failed to create review:", error);
+      alert("Failed to create review. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -178,8 +207,8 @@ function CreateNewReview() {
         setExistingHashTags={setExistingHashTags}
       />
       <Container className="btn-container">
-        <button type="submit" className="btn btn-submit">
-          Submit Review
+        <button type="submit" className="btn btn-submit" disabled={isSubmitting}>
+          {isSubmitting ? "Submitting..." : "Submit Review"}
         </button>
       </Container>
     </form>

@@ -1,17 +1,30 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getUserHitlist } from '../lib/hitlistUtils';
+import { useSession } from 'next-auth/react';
 
 export default function HitlistClient() {
   const [hitlist, setHitlist] = useState([]);
+  const { data: session } = useSession();
+  const user = session?.user;
 
   useEffect(() => {
+    if (!user?.id) return;
+    
     (async () => {
-      const list = await getUserHitlist();
-      setHitlist(list);
+      try {
+        const response = await fetch('/api/hitlist');
+        if (response.ok) {
+          const data = await response.json();
+          setHitlist(data.hitlist || []);
+        } else {
+          console.error("Failed to load hitlist");
+        }
+      } catch (error) {
+        console.error("Failed to load hitlist:", error);
+      }
     })();
-  }, []);
+  }, [user?.id]);
 
   return (
     <div className="hitlist">
