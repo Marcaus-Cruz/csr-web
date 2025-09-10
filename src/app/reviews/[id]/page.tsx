@@ -1,33 +1,50 @@
 import type {
-  RatingType,
   CategoryType,
   DB_REVIEW,
+  RatingType,
 } from "@/app/types/category.types";
-import Link from "next/link";
+import ReviewHitListClient from "../../components/ReviewHitlistClient";
+import { getReviewById } from "../../lib/dynamoReviews";
+import { getUserById } from "../../lib/dynamoUsers";
+import "./review.css";
 
 async function getReview(id: string) {
   console.log("[reviews][id][page][getReview]", { id });
+  
+  try {
+    const review = await getReviewById(id);
+    if (!review) {
+      return {} as DB_REVIEW;
+    }
 
-  const res = await fetch(
-    `http://127.0.0.1:8090/api/collections/reviews/records/${id}`,
-    { next: { revalidate: 10 } }
-  );
+    // Get the owner's hitlist
+    const owner = await getUserById(review.owner);
+    const reviewWithHitlist = {
+      ...review,
+      ownerHitlist: owner?.hitlist || []
+    };
 
-  return (await res.json()) as DB_REVIEW;
+    return reviewWithHitlist as DB_REVIEW;
+  } catch (error) {
+    console.error("Error fetching review:", error);
+    return {} as DB_REVIEW;
+  }
 }
 
 export default async function ReviewPage({
   params,
 }: Readonly<{
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }>) {
   console.log("[reviews][id][page]", { params });
 
-  const review = await getReview(params.id);
+  const { id: reviewId } = await params;
+
+  const review = await getReview(reviewId);
 
   console.warn({ review });
 
-  const { restName, sandName, intro, remarks, hashtags } = review;
+  const { restName, sandName, intro, remarks, hashtags, ownerHitlist } = review;
 
   return (
     <div className="review">
@@ -43,9 +60,10 @@ export default async function ReviewPage({
         <br />
         <div className="text remarks">{remarks}</div>
         <br />
+        <ReviewHitListClient hitlist={ownerHitlist} />
+        <br />
         {Hashtags(hashtags)}
       </div>
-      <Link className="btn edit" href="">Edit Review</Link>
     </div>
   );
 }
@@ -96,8 +114,8 @@ function ReviewRatingsSection({
   type: "main" | "extras";
 }>) {
   if (
-    (type === "main" && !review.mainCategories.length) ||
-    (type === "extras" && !review.extraCategories.length)
+    (type === "main" && !review.mainCategories?.length) ||
+    (type === "extras" && !review.extraCategories?.length)
   ) {
     return <div></div>;
   }
@@ -147,8 +165,8 @@ function CategoryItem(categoryItemData: Readonly<CategoryType>) {
         </div>
       </div>
       <div className="category-ratings">
-        {categoryItemData.ratings.map(({ id, text, value }) => (
-          <RatingItem key={id} text={text} value={value} />
+        {categoryItemData.ratings.map(({ id, text, value, emoji }) => (
+          <RatingItem key={id} text={text} value={value} emoji={emoji} />
         ))}
       </div>
       <br />
@@ -159,12 +177,17 @@ function CategoryItem(categoryItemData: Readonly<CategoryType>) {
 function RatingItem(ratingItemData: Readonly<Partial<RatingType>>) {
   console.log("[ReviewPage][RatingItem]", { ratingItemData });
 
+  if (!ratingItemData.text) {
+    return <div></div>;
+  }
+
   return (
     <div className="rating">
       <div className="rating-text">
         {individualRatingText(
-          ratingItemData.text ?? "",
-          ratingItemData.value ?? 0
+          ratingItemData.text,
+          ratingItemData.value ?? 0,
+          ratingItemData.emoji
         )}
       </div>
     </div>
@@ -182,5 +205,6 @@ function individualRatingText(
 }
 
 function Hashtags(hashtags: string[] = []): string {
-  return `#${[...hashtags, ...CONSTANT_HASHTAGS].join(" #")}`;
+  if (!hashtags?.length) return ``;
+  return `#${[...hashtags].join(" #")}`;
 }

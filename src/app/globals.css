@@ -1,13 +1,17 @@
 :root {
-  --background: #ffffff;
+  /* ghostwhite floralwhite */
+  --background: floralwhite;
   --foreground: #171717;
+
+  --color-btn-main: #87ac30;
+  --color-btn-secondary: var(--background);
+
+  --header-height: 10vh;
+  --page-height: 90vh;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scrollbar-width: none;
 }
 
 html,
@@ -16,12 +20,27 @@ body {
   overflow-x: hidden;
 }
 
+.page-bg {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  background-image: none;
+  background-size: 10%;
+  background-position: center;
+  opacity: 0.25;
+}
+
 body {
-  color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  font-size: 3vmin;
 }
 
 * {
@@ -35,31 +54,75 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-}
-
 .page {
+  position: relative;
   display: flex;
   flex-direction: column;
+  font-size: 3vmin;
+  background-color: transparent;
 
   width: 100vw;
-  height: 100vh;
+  height: var(--page-height);
 
-  border: 0.5vmin solid red;
-
-  &.home {
-    background-image: url("/public/logo-csr.png");
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
+  &.home,
+  &.sign-up {
+    ~ .page-bg {
+      background-image: url("../../public/logo-csr.png");
+    }
   }
 }
 
 .btn {
-  background: unset;
+  font-size: 1em;
+  padding: 0.5em 1em;
+  margin: 0.5em 1em;
+  color: var(--color-btn-main);
+  background: var(--color-btn-secondary);
+  border: 0.5vmin solid var(--color-btn-main);
+  border-radius: 0.5em;
   cursor: pointer;
-  border: 0.5vmin solid white;
+  outline: none;
+
+  &:hover {
+    color: var(--color-btn-secondary);
+    background: var(--color-btn-main);
+  }
+}
+
+.user-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+  padding: 4em 2em;
+  color: black;
+  border-radius: 1em;
+  border: 0.1em solid black;
+  background-color: ghostwhite;
+  text-align: center;
+
+  .options {
+    display: flex;
+    flex-direction: column;
+  }
+
+  input {
+    margin: 0.5em auto;
+  }
+
+  .text {
+    font-size: 0.8em;
+  }
+
+  .btn {
+    --color-btn-secondary: ghostwhite;
+  }
+}
+
+input {
+  font-size: 1em;
+
+  padding: 0.25em;
+  border: 0.1em solid black;
 }

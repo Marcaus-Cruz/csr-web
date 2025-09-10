@@ -5,16 +5,18 @@ import {
   BASE_CATEGORIES,
   BASE_CATEGORIES_IDS,
 } from "@/app/types/category.types";
+import { ValueOf } from "next/dist/shared/lib/constants";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { v4 as uuid } from "uuid";
+import { withAuth } from "../lib/withAuth";
+import type { DynamoReview } from "../lib/dynamoReviews";
+import { useSession } from "next-auth/react";
+import type { CSRUser } from "../api/auth/[...nextauth]/options";
 import { CHICKEN_EMOJIS, CONSTANT_HASHTAGS } from "../reviews/[id]/page";
 import "./createPage.css";
-import { ValueOf } from "next/dist/shared/lib/constants";
 
-export default function CreateNewReview() {
-  // TODO: if not signed in, redirect to login page
-
+function CreateNewReview() {
   const [restName, setRestName] = useState("");
   const [sandName, setSandName] = useState("");
   const [intro, setIntro] = useState("");
@@ -24,89 +26,135 @@ export default function CreateNewReview() {
   );
   const [remarks, setRemarks] = useState("");
   const [existingHashTags, setExistingHashTags] = useState<string[]>([]); // ...Constant Hashtags
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const router = useRouter();
+  const { data: session } = useSession();
+  const user = session?.user as CSRUser;
 
-  async function create(e) {
-    console.log(`[CreateReview][onSubmit]`, {
-      restName,
-      sandName,
-      intro,
-      categories,
-      remarks,
-      existingHashTags,
-    });
+  async function create(event: React.FormEvent) {
+    event.preventDefault();
 
-    e.preventDefault();
+    if (isSubmitting || !user?.id) return;
 
-    [restName, sandName, intro, remarks].forEach((text) => {
-      if (!text) {
-        throw new Error(`[CreateReview][onSubmit] - text is empty`);
-      }
-    });
+    setIsSubmitting(true);
 
-    existingHashTags.forEach((tag) => {
-      if (!tag) {
-        throw new Error(`[CreateReview][onSubmit] - tag is empty`);
-      }
-    });
+    try {
+      // Validate required fields
+      [restName, sandName, intro, remarks].forEach((text) => {
+        if (!text.trim()) {
+          throw new Error("All text fields are required");
+        }
+      });
 
-    const mainCategories = categories.filter((category) =>
-      BASE_CATEGORIES_IDS.includes(category.id)
-    );
-    const extraCategories = categories.filter(
-      (category) => !BASE_CATEGORIES_IDS.includes(category.id)
-    );
+      existingHashTags.forEach((tag) => {
+        if (!tag.trim()) {
+          throw new Error("All hashtags must have content");
+        }
+      });
 
-    await fetch("http://127.0.0.1:8090/api/collections/reviews/records", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        restName,
-        sandName,
-        intro,
-        categories,
+      // * Set values for each category
+      const filteredCategories = categories
+        .filter(
+          ({ text: categoryName, ratings }) =>
+            categoryName.trim() && ratings.length > 0
+        )
+        .map((category) => {
+          const filteredRatings = category.ratings.filter((rating) =>
+            rating.text.trim()
+          );
+
+          return {
+            ...category,
+            ratings: filteredRatings,
+            value: getAverageValue(filteredRatings),
+          };
+        });
+
+      // * Separate categories. Omit any that are left empty
+      const mainCategories = filteredCategories.filter((category) =>
+        BASE_CATEGORIES_IDS.includes(category.id)
+      );
+      const extraCategories = filteredCategories.filter(
+        (category) => !BASE_CATEGORIES_IDS.includes(category.id)
+      );
+
+      // * Calculate overall rating
+      const overallRating = getAverageValue(mainCategories);
+      const altRating = getAverageValue(filteredCategories);
+
+      // * Append hashtags
+      const hashtags = [...existingHashTags, ...CONSTANT_HASHTAGS];
+
+      const id = uuid();
+      const reviewData: DynamoReview = {
+        id,
+        owner: user.id,
+        restName: restName.trim(),
+        sandName: sandName.trim(),
+        intro: intro.trim(),
+        categories: filteredCategories,
         mainCategories,
         extraCategories,
-        remarks,
-        existingHashTags,
-      }),
-    });
+        overallRating,
+        altRating,
+        remarks: remarks.trim(),
+        hashtags,
+      };
 
-    setRestName("");
-    setSandName("");
-    setIntro("");
-    setCategories(BASE_CATEGORIES);
-    setRemarks("");
-    setExistingHashTags([]);
+      // Submit to API
+      const response = await fetch("/api/create-review", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(reviewData),
+      });
 
-    router.refresh();
+      if (!response.ok) {
+        throw new Error("Failed to create review");
+      }
+
+      // Clear form
+      setRestName("");
+      setSandName("");
+      setIntro("");
+      setCategories(BASE_CATEGORIES);
+      setRemarks("");
+      setExistingHashTags([]);
+
+      // Redirect to the new review
+      router.push(`/reviews/${id}`);
+    } catch (error) {
+      console.error("Failed to create review:", error);
+      alert("Failed to create review. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
     <form onSubmit={create} className={`create-review-form`}>
       <Container className="descriptors">
-        <label htmlFor="restName" className="form-label">
+        <div className={`form-label${!restName ? " empty" : ""}`}>
           Resturaunt ⇒
-        </label>
+        </div>
         <input
           type="text"
           name="restName"
-          className="form-input text"
+          className={`form-input text${!restName ? " empty" : ""}`}
           minLength={1}
           maxLength={50}
           value={restName}
           onChange={(e) => setRestName(e.target.value)}
         />
-        <label htmlFor="sandName" className="form-label">
+        <div className={`form-label${!sandName ? " empty" : ""}`}>
           Sandwich ⇒
-        </label>
+        </div>
         <input
           type="text"
           name="sandName"
-          className="form-input text"
+          className={`form-input text${!sandName ? " empty" : ""}`}
           minLength={1}
           maxLength={50}
           value={sandName}
@@ -114,18 +162,17 @@ export default function CreateNewReview() {
         />
       </Container>
       <Container className="intro">
-        <label htmlFor="intro" className="form-label">
-          Intro ⇒
-        </label>
+        <div className={`form-label${!intro ? " empty" : ""}`}>Intro ⇒</div>
         <textarea
           name="intro"
-          className="form-input text long"
+          className={`form-input text long${!intro ? " empty" : ""}`}
           minLength={1}
           value={intro}
           onChange={(e) => setIntro(e.target.value)}
         />
       </Container>
       <Container className="categories main">
+        <div className={"form-label"}>Categories ⇒</div>
         {categories.map((category) => (
           <CategoryItem
             key={category.id}
@@ -141,16 +188,14 @@ export default function CreateNewReview() {
             setCategories([...categories, newCategory]);
           }}
         >
-          +
+          New Category
         </button>
       </Container>
       <Container className="remarks">
-        <label htmlFor="remarks" className="form-label">
-          Remarks ⇒
-        </label>
+        <div className={`form-label${!remarks ? " empty" : ""}`}>Remarks ⇒</div>
         <textarea
           name="remarks"
-          className="form-input text long"
+          className={`form-input text long${!remarks ? " empty" : ""}`}
           minLength={1}
           value={remarks}
           onChange={(e) => setRemarks(e.target.value)}
@@ -162,13 +207,15 @@ export default function CreateNewReview() {
         setExistingHashTags={setExistingHashTags}
       />
       <Container className="btn-container">
-        <button type="submit" className="btn btn-submit">
-          Submit Review
+        <button type="submit" className="btn btn-submit" disabled={isSubmitting}>
+          {isSubmitting ? "Submitting..." : "Submit Review"}
         </button>
       </Container>
     </form>
   );
 }
+
+export default withAuth(CreateNewReview);
 
 type CategoryItemProps = {
   currentCategory: CategoryType;
@@ -211,9 +258,10 @@ export function CategoryItem({
     <div className="container category" key={currentCategory.id}>
       <input
         type="text"
-        className="form-label typewriter"
+        name={currentCategory.id}
+        className={`form-input text${!currentCategory.text ? " empty" : ""}`}
         value={currentCategory.text}
-        placeholder="New Category"
+        placeholder="This Category will not be counted."
         onChange={(event) => updateCategoryText(event.target.value)}
       />
 
@@ -227,7 +275,11 @@ export function CategoryItem({
       ))}
 
       {currentCategory.text && (
-        <button type="button" onClick={addNewRating}>
+        <button
+          type="button"
+          className="btn btn-add-rating"
+          onClick={addNewRating}
+        >
           Add Rating
         </button>
       )}
@@ -250,14 +302,18 @@ export function RatingItem({
     field: keyof RatingType,
     value: ValueOf<RatingType>
   ) => {
-    updateCategories((prev) => {
-      const newCats = [...prev];
-      const cat = newCats.find((c) => c.id === categoryId);
-      if (!cat) return prev;
-      const r = cat.ratings.find((r) => r.id === rating.id);
-      if (!r) return prev;
-      r[field] = value;
-      return newCats;
+    updateCategories((previousCategories) => {
+      const updatedCategories = [...previousCategories];
+      const updatingCategory = updatedCategories.find(
+        (existingCategory) => existingCategory.id === categoryId
+      );
+      if (!updatingCategory) return previousCategories;
+      const updatedRating = updatingCategory.ratings.find(
+        (existingRating) => existingRating.id === rating.id
+      );
+      if (!updatedRating) return previousCategories;
+      updatedRating[field] = value;
+      return updatedCategories;
     });
   };
 
@@ -266,9 +322,10 @@ export function RatingItem({
       <div className="rating-item-child name">
         <input
           type="text"
-          className="form-label typewriter"
+          name={rating.text}
+          className={`form-input text${!rating.text ? " empty" : ""}`}
           value={rating.text}
-          placeholder="New Rating"
+          placeholder="Rating will not be counted."
           onChange={(e) => updateRatingField("text", e.target.value)}
         />
       </div>
@@ -287,9 +344,11 @@ export function RatingItem({
           onChange={(e) =>
             updateRatingField("value", parseFloat(e.target.value))
           }
+          className={"form-input text"}
           placeholder="0-10"
           min={0}
           max={10}
+          step={0.5}
         />
         <button
           type="button"
@@ -300,25 +359,15 @@ export function RatingItem({
         </button>
       </div>
       <input
-        className="rating-item-child emoji"
+        name={`${rating.id}-emoji`}
+        className="form-input text rating-item-child emoji"
         type="text"
         value={rating.emoji}
         onChange={(e) => updateRatingField("emoji", e.target.value)}
         placeholder={CHICKEN_EMOJIS.full}
-        maxLength={1}
       />
     </div>
   );
-}
-
-function getNewRatingItem(): RatingType {
-  return {
-    id: uuid(),
-    text: "",
-    value: 5,
-    category: "",
-    emoji: "",
-  };
 }
 
 function getNewCategoryItem(): CategoryType {
@@ -333,22 +382,6 @@ function getNewCategoryItem(): CategoryType {
 // TODO: Create into component
 export function Container({ children, className = "" }) {
   return <div className={`container ${className}`}>{children}</div>;
-}
-
-function AddButton({ isOnScreen, startAddFunction, elementToDisplay }) {
-  if (!isOnScreen) {
-    return (
-      <button
-        type="button"
-        className="btn btn-add"
-        onClick={() => startAddFunction()}
-      >
-        +
-      </button>
-    );
-  }
-
-  return elementToDisplay;
 }
 
 type HashtagSectionProps = Readonly<{
@@ -378,58 +411,70 @@ function HashtagSection({
 
   return (
     <div className="container hashtags">
-      <AddButton
-        isOnScreen={isAddingHashtag}
-        startAddFunction={() => setIsAddingHashtag(true)}
-        elementToDisplay={
-          <div className="hashtag new-hashtag">
-            #
-            <input
-              type="text"
-              value={newHashtag}
-              onChange={(e) => setNewHashtag(e.target.value)}
-            />
-            <button className="btn" onClick={() => saveHashtag()}>
-              Done
-            </button>
-          </div>
-        }
-      />
+      <div className="form-label">Hashtags ⇒</div>
+      {!isAddingHashtag ? (
+        <button
+          type="button"
+          className="btn btn-add"
+          onClick={() => setIsAddingHashtag(true)}
+        >
+          +
+        </button>
+      ) : (
+        <div className="hashtag new-hashtag">
+          #
+          <input
+            name={newHashtag}
+            type="text"
+            value={newHashtag}
+            onChange={(e) => setNewHashtag(e.target.value)}
+            className="form-input text"
+          />
+          <button className="btn" onClick={() => saveHashtag()}>
+            Done
+          </button>
+        </div>
+      )}
       {existingHashTags.map((hashtag) => {
         return (
           <div key={hashtag} className="hashtag">
-            #<input type="text" value={hashtag} disabled />
-            <button className="btn" onClick={() => removeHashtag(hashtag)}>
-              -
+            #<input name={hashtag} type="text" value={hashtag} disabled />
+            <button
+              className="btn btn-remove"
+              onClick={() => removeHashtag(hashtag)}
+            >
+              Remove
             </button>
           </div>
         );
       })}
       <div className="hashtag">
-        #<input type="text" value={CONSTANT_HASHTAGS[0]} disabled />
+        #
+        <input
+          name={CONSTANT_HASHTAGS[0]}
+          type="text"
+          value={CONSTANT_HASHTAGS[0]}
+          disabled
+        />
       </div>
       <div className="hashtag">
-        #<input type="text" value={CONSTANT_HASHTAGS[1]} disabled />
+        #
+        <input
+          name={CONSTANT_HASHTAGS[1]}
+          type="text"
+          value={CONSTANT_HASHTAGS[1]}
+          disabled
+        />
       </div>
     </div>
   );
 }
 
-function deleteCategory(categoryId: string) {}
-
-// Hit + button
-function addExtraCategory() {}
-
-function QuestionSlider() {}
-
-function calculateCategoryRatings(ratings: RatingType[]) {
-  const total = ratings.reduce((acc, rating) => acc + rating.value, 0);
-  const average = total / ratings.length;
-  return average;
-}
-
-function calculateOverallRating(categories: CategoryType[]) {
-  const total = categories.reduce((acc, category) => acc + category.value, 0);
-  const average = total / categories.length;
+function getAverageValue(catsOrRatings: CategoryType[] | RatingType[]) {
+  const total = catsOrRatings.reduce(
+    (acc, category) => acc + category.value,
+    0
+  );
+  const average = parseFloat((total / catsOrRatings.length).toFixed(1));
   return average;
 }

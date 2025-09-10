@@ -1,0 +1,16 @@
+.page.home {
+  .user-container.home {
+    .options {
+      display: flex;
+      flex-direction: column;
+
+      .options-text {
+        font-size: 0.8em;
+      }
+
+      .btn {
+        margin: 0.5em 0.5em 1em;
+      }
+    }
+  }
+}

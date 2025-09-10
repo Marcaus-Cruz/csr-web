@@ -1,62 +1,47 @@
-import "./pageHeader.css";
-import Image from "next/image";
-import Link from "next/link";
+"use client";
 
-export default function PageHeader({ setCurrentPage }) {
+import { signOut, useSession } from "next-auth/react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import "./pageHeader.css";
+
+export default function PageHeader() {
+  const router = useRouter();
+  const session = useSession();
+
+  const isAuthenticated = session.status === "authenticated";
+
+  const buttonMap = isAuthenticated
+    ? {
+        reviews: "Reviews",
+        create: "Create",
+        hitlist: "Hitlist",
+        logout: "Logout",
+      }
+    : {
+        home: "Home",
+        login: "Login",
+        signup: "Sign Up",
+      };
+
   return (
     <header>
-      <Link
-        className="btn logo"
-        href="/home"
-        onClick={() => setCurrentPage("home")}
-      >
+      <button className="btn logo" onClick={() => router.push("home")}>
         <Image src="/logo-csr.png" alt="logo" fill={true} />
-      </Link>
+      </button>
       <nav className="nav">
-        <Link
-          className="btn standard"
-          href="/home"
-          onClick={() => setCurrentPage("home")}
-        >
-          Home
-        </Link>
-        <Link
-          className="btn standard"
-          href="/reviews"
-          onClick={() => setCurrentPage("reviews")}
-        >
-          Reviews
-        </Link>
-        <Link
-          className="btn standard"
-          href="/create"
-          onClick={() => setCurrentPage("create")}
-        >
-          Create
-        </Link>
+        {Object.entries(buttonMap).map(([key, text]) => (
+          <button
+            className="btn standard"
+            key={key}
+            onClick={() =>
+              key === "logout" ? signOut() : router.push(`/${key}`)
+            }
+          >
+            {text}
+          </button>
+        ))}
       </nav>
     </header>
-    // <header>
-    //   <button className="btn logo" onClick={() => setCurrentPage("home")}>
-    //     <Image src="/logo-csr.png" alt="logo" fill={true} />
-    //   </button>
-    //   <nav className="nav">
-    //     <button className="btn standard" onClick={() => setCurrentPage("home")}>
-    //       Home
-    //     </button>
-    //     <button
-    //       className="btn standard"
-    //       onClick={() => setCurrentPage("reviews")}
-    //     >
-    //       Reviews
-    //     </button>
-    //     <button
-    //       className="btn standard"
-    //       onClick={() => setCurrentPage("create")}
-    //     >
-    //       Create
-    //     </button>
-    //   </nav>
-    // </header>
   );
 }

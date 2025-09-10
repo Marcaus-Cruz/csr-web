@@ -1,0 +1,15 @@
+.hitlist {
+  background-color: var(--background);
+  display: flex;
+  flex-direction: column;
+
+  h1 {
+    text-align: center;
+  }
+
+  .hitlist-item {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+}
